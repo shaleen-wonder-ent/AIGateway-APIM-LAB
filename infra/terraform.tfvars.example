@@ -1,0 +1,19 @@
+# --- Required ---
+apim_name              = "apim-aigw-demo"
+entra_tenant_id        = "00000000-0000-0000-0000-000000000000"
+aigw_client_app_id     = "00000000-0000-0000-0000-000000000000"
+group_team_marketing   = "00000000-0000-0000-0000-000000000000"
+group_team_engineering = "00000000-0000-0000-0000-000000000000"
+group_team_finance     = "00000000-0000-0000-0000-000000000000"
+
+# Prefer TF_VAR_anthropic_api_key / TF_VAR_bedrock_bearer_token env vars
+# in real use so secrets don't land on disk.
+anthropic_api_key    = "sk-ant-xxxxxxxxxxxxxxxxxxxxxxxx"
+bedrock_bearer_token = "xxxxxxxxxxxxxxxxxxxxxxxx"
+
+# --- Optional ---
+location                = "eastus2"
+apim_sku                = "StandardV2_1"
+aws_region              = "us-east-1"
+vertex_region           = "us-central1"
+vertex_token_broker_url = "https://func-vertex-broker.azurewebsites.net/api/token"

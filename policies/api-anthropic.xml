@@ -1,0 +1,87 @@
+<!--
+  API-level policy: Anthropic (api.anthropic.com)
+  Path: /anthropic/v1/messages
+  Backend: https://api.anthropic.com
+
+  Demonstrates:
+    - Scenario 3: Anthropic API key stored in Key Vault → APIM Named
+      Value {{anthropic-api-key}}. Callers never see it.
+    - Scenario 4: Same OpenAI-style JSON accepted; policy transforms it
+      to Anthropic's schema so client SDKs stay identical across vendors.
+    - Scenario 7: Same content safety + audit fragments as Foundry.
+-->
+<policies>
+    <inbound>
+        <base />
+
+        <!-- Consistent safety guardrails -->
+        <include-fragment fragment-id="fragment-content-safety" />
+
+        <set-backend-service base-url="https://api.anthropic.com" />
+
+        <!-- SCENARIO 3: Inject vendor key from Key Vault-backed Named Value -->
+        <set-header name="x-api-key"          exists-action="override"><value>{{anthropic-api-key}}</value></set-header>
+        <set-header name="anthropic-version"  exists-action="override"><value>2023-06-01</value></set-header>
+        <set-header name="Authorization"      exists-action="delete" />
+        <set-header name="api-key"            exists-action="delete" />
+
+        <!-- SCENARIO 4: Accept OpenAI-shaped payload; translate to Anthropic. -->
+        <set-body>@{
+            var body = context.Request.Body.As<JObject>(preserveContent: false);
+            var model = (string)(body["model"] ?? "claude-3-5-sonnet-20241022");
+            var maxTokens = (int?)body["max_tokens"] ?? 1024;
+            var messages = (JArray)(body["messages"] ?? new JArray());
+            string system = null;
+            var mapped = new JArray();
+            foreach (var m in messages) {
+                var role = (string)m["role"];
+                if (role == "system") { system = (string)m["content"]; continue; }
+                mapped.Add(new JObject(
+                    new JProperty("role", role),
+                    new JProperty("content", m["content"])
+                ));
+            }
+            var outBody = new JObject(
+                new JProperty("model", model),
+                new JProperty("max_tokens", maxTokens),
+                new JProperty("messages", mapped)
+            );
+            if (system != null) outBody["system"] = system;
+            return outBody.ToString();
+        }</set-body>
+
+        <!-- SCENARIO 2: Approximate token-based throttling by request count. -->
+        <!-- (azure-openai-token-limit only supports OpenAI-shaped responses.)-->
+        <rate-limit-by-key calls="120" renewal-period="60"
+            counter-key="@("anthropic-" + (string)context.Variables["teamId"])"
+            remaining-calls-header-name="x-ratelimit-remaining"
+            retry-after-header-name="Retry-After" />
+    </inbound>
+
+    <backend>
+        <forward-request timeout="120" />
+    </backend>
+
+    <outbound>
+        <base />
+
+        <!-- SCENARIO 5: Emit Anthropic token usage as a custom metric so -->
+        <!-- Foundry + vendor spend are on the same dashboard.            -->
+        <emit-metric name="TotalTokens" value="@{
+            var body = context.Response.Body.As<JObject>(preserveContent: true);
+            var usage = body?["usage"] as JObject;
+            var inTok  = (int?)usage?["input_tokens"] ?? 0;
+            var outTok = (int?)usage?["output_tokens"] ?? 0;
+            return (double)(inTok + outTok);
+        }" namespace="enterprise-ai-gateway">
+            <dimension name="Team"       value="@((string)context.Variables["teamId"])" />
+            <dimension name="CostCenter" value="@((string)context.Variables["costCenter"])" />
+            <dimension name="Vendor"     value="anthropic" />
+            <dimension name="Model"      value="@{ var b = context.Response.Body.As<JObject>(preserveContent: true); return (string)(b?["model"] ?? "unknown"); }" />
+        </emit-metric>
+    </outbound>
+
+    <on-error>
+        <base />
+    </on-error>
+</policies>

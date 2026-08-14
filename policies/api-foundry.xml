@@ -1,0 +1,95 @@
+<!--
+  API-level policy: Microsoft Foundry / Azure OpenAI
+  Path: /foundry/openai/deployments/{deployment}/chat/completions
+  Backend: Azure OpenAI resource, private endpoint only.
+
+  Demonstrates:
+    - Scenario 3: Zero key exposure — APIM injects the token via managed
+      identity; the client never sees an API key.
+    - Scenario 4: OpenAI-shaped request accepted directly.
+    - Scenario 5: Native token metric emission for chargeback.
+    - Scenario 7: Same auth / content-safety / audit fragments as other
+      vendors.
+-->
+<policies>
+    <inbound>
+        <base />
+
+        <!-- Consistent safety guardrails across all vendors -->
+        <include-fragment fragment-id="fragment-content-safety" />
+
+        <!-- Route to the Foundry backend (private endpoint). -->
+        <set-backend-service backend-id="foundry-backend" />
+
+        <!-- SCENARIO 3: No client-provided keys. Strip anything the -->
+        <!-- caller might try to send, then attach an OAuth token    -->
+        <!-- obtained via APIM's system-assigned managed identity.   -->
+        <set-header name="api-key"       exists-action="delete" />
+        <set-header name="Authorization" exists-action="delete" />
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="msi-token" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["msi-token"])</value>
+        </set-header>
+
+        <!-- SCENARIO 2: Team-scoped token throughput limit. Product-level -->
+        <!-- policies (product-team-*.xml) set the per-team ceiling; this -->
+        <!-- global cap protects the backend from any single team.        -->
+        <azure-openai-token-limit
+            tokens-per-minute="500000"
+            counter-key="@((string)context.Variables["teamId"])"
+            estimate-prompt-tokens="true"
+            tokens-consumed-header-name="x-tokens-consumed"
+            remaining-tokens-header-name="x-tokens-remaining" />
+
+        <!-- Semantic cache — reduces model spend on repeat prompts. -->
+        <azure-openai-semantic-cache-lookup
+            score-threshold="0.85"
+            embeddings-backend-id="embeddings-backend"
+            embeddings-backend-auth="system-assigned">
+            <vary-by>@((string)context.Variables["teamId"])</vary-by>
+        </azure-openai-semantic-cache-lookup>
+
+        <!-- SCENARIO 5: Native OpenAI token metrics to Azure Monitor. -->
+        <azure-openai-emit-token-metric namespace="enterprise-ai-gateway">
+            <dimension name="Team"       value="@((string)context.Variables["teamId"])" />
+            <dimension name="CostCenter" value="@((string)context.Variables["costCenter"])" />
+            <dimension name="User"       value="@((string)context.Variables["userUpn"])" />
+            <dimension name="Vendor"     value="foundry" />
+            <dimension name="Model"      value="@(context.Request.MatchedParameters.GetValueOrDefault("deployment","unknown"))" />
+        </azure-openai-emit-token-metric>
+    </inbound>
+
+    <backend>
+        <forward-request timeout="120" />
+    </backend>
+
+    <outbound>
+        <base />
+        <azure-openai-semantic-cache-store duration="3600" />
+    </outbound>
+
+    <on-error>
+        <base />
+        <choose>
+            <when condition="@(context.LastError.Source == "azure-openai-token-limit")">
+                <return-response>
+                    <set-status code="429" reason="Token Limit Exceeded" />
+                    <set-header name="Retry-After" exists-action="override"><value>60</value></set-header>
+                    <set-body>@{
+                        return new JObject(
+                            new JProperty("error","token_limit_exceeded"),
+                            new JProperty("team", (string)context.Variables["teamId"]),
+                            new JProperty("message","Your team has exceeded its per-minute token allocation.")
+                        ).ToString();
+                    }</set-body>
+                </return-response>
+            </when>
+            <when condition="@(context.LastError.Source == "llm-content-safety")">
+                <return-response>
+                    <set-status code="400" reason="Content Filtered" />
+                    <set-body>{"error":"content_filtered","message":"Request blocked by Responsible AI policy."}</set-body>
+                </return-response>
+            </when>
+        </choose>
+    </on-error>
+</policies>

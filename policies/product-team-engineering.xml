@@ -1,0 +1,27 @@
+<!--
+  Product policy: Team-Engineering
+  Tier: 500,000 TPM / 5,000 RPM / 50M tokens/day budget.
+-->
+<policies>
+    <inbound>
+        <base />
+
+        <azure-openai-token-limit
+            tokens-per-minute="500000"
+            counter-key="@("engineering-tpm")"
+            estimate-prompt-tokens="true"
+            tokens-consumed-header-name="x-tokens-consumed"
+            remaining-tokens-header-name="x-tokens-remaining" />
+
+        <rate-limit-by-key calls="5000" renewal-period="60"
+            counter-key="@("engineering-rpm")"
+            remaining-calls-header-name="x-ratelimit-remaining"
+            retry-after-header-name="Retry-After" />
+
+        <quota-by-key calls="50000000" renewal-period="86400"
+            counter-key="@("engineering-daily")" />
+    </inbound>
+    <backend><base /></backend>
+    <outbound><base /></outbound>
+    <on-error><base /></on-error>
+</policies>

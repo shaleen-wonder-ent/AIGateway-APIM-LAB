@@ -1,0 +1,126 @@
+<!--
+  Global (All APIs) policy — Enterprise AI Gateway
+  Applied at the "All APIs" scope. Runs BEFORE any API-specific policy.
+
+  Governance layers enforced here (vendor-agnostic):
+    1. Private-only network posture (allow list + VNet)
+    2. Entra ID authentication and team extraction
+    3. User-access revocation (group membership required)
+    4. Centralized audit and chargeback logging
+-->
+<policies>
+    <inbound>
+        <base />
+
+        <!-- ============================================================ -->
+        <!-- SCENARIO 6: Private-only access                              -->
+        <!-- Backstop the private endpoint. Reject any caller that is not -->
+        <!-- on the corporate CIDR ranges. Real enforcement should         -->
+        <!-- also rely on APIM ingress being VNet-injected with a private -->
+        <!-- endpoint / no public IP.                                     -->
+        <!-- ============================================================ -->
+        <ip-filter action="allow">
+            <address-range from="10.0.0.0" to="10.255.255.255" />
+            <address-range from="172.16.0.0" to="172.31.255.255" />
+            <address-range from="192.168.0.0" to="192.168.255.255" />
+        </ip-filter>
+
+        <!-- ============================================================ -->
+        <!-- SCENARIO 1: Entra ID authentication + access revocation      -->
+        <!-- Validate the caller's Entra ID access token. Removing a user -->
+        <!-- from the required group (or disabling their account)         -->
+        <!-- instantly revokes access on the next token acquisition.      -->
+        <!-- Group GUIDs must match the AIGW-Team-* security groups.      -->
+        <!-- ============================================================ -->
+        <validate-azure-ad-token
+            tenant-id="{{entra-tenant-id}}"
+            header-name="Authorization"
+            failed-validation-httpcode="401"
+            failed-validation-error-message="Unauthorized: valid Entra ID token required.">
+            <client-application-ids>
+                <application-id>{{aigw-client-app-id}}</application-id>
+            </client-application-ids>
+            <audiences>
+                <audience>api://enterprise-ai-gateway</audience>
+            </audiences>
+            <required-claims>
+                <claim name="groups" match="any">
+                    <value>{{group-team-marketing}}</value>
+                    <value>{{group-team-engineering}}</value>
+                    <value>{{group-team-finance}}</value>
+                </claim>
+            </required-claims>
+        </validate-azure-ad-token>
+
+        <!-- Derive team + user context from the validated token so every -->
+        <!-- downstream policy (quotas, metrics, logs) can use them.      -->
+        <set-variable name="userOid" value="@{
+            var jwt = context.Request.Headers.GetValueOrDefault("Authorization","").Replace("Bearer ","").AsJwt();
+            return jwt?.Claims.GetValueOrDefault("oid","unknown");
+        }" />
+        <set-variable name="userUpn" value="@{
+            var jwt = context.Request.Headers.GetValueOrDefault("Authorization","").Replace("Bearer ","").AsJwt();
+            return jwt?.Claims.GetValueOrDefault("preferred_username","unknown");
+        }" />
+        <set-variable name="teamId" value="@{
+            var jwt = context.Request.Headers.GetValueOrDefault("Authorization","").Replace("Bearer ","").AsJwt();
+            var groups = jwt?.Claims.GetValueOrDefault("groups","");
+            if (groups.Contains("{{group-team-engineering}}")) return "engineering";
+            if (groups.Contains("{{group-team-marketing}}"))   return "marketing";
+            if (groups.Contains("{{group-team-finance}}"))     return "finance";
+            return "unassigned";
+        }" />
+        <set-variable name="costCenter" value="@{
+            switch ((string)context.Variables["teamId"]) {
+                case "engineering": return "CC-1001";
+                case "marketing":   return "CC-2002";
+                case "finance":     return "CC-3003";
+                default:            return "CC-0000";
+            }
+        }" />
+
+        <!-- Propagate context for downstream backends and logs. Strip any -->
+        <!-- inbound copy first so callers can't spoof identity headers.   -->
+        <set-header name="X-AIGW-Team"        exists-action="override"><value>@((string)context.Variables["teamId"])</value></set-header>
+        <set-header name="X-AIGW-User"        exists-action="override"><value>@((string)context.Variables["userUpn"])</value></set-header>
+        <set-header name="X-AIGW-CostCenter"  exists-action="override"><value>@((string)context.Variables["costCenter"])</value></set-header>
+        <set-header name="X-AIGW-CorrelationId" exists-action="override"><value>@(Guid.NewGuid().ToString())</value></set-header>
+
+        <!-- ============================================================ -->
+        <!-- SCENARIO 5: Centralized audit / chargeback logging           -->
+        <!-- Reused fragment writes a structured record to App Insights   -->
+        <!-- for every request (prompt tokens are added in <outbound>).   -->
+        <!-- ============================================================ -->
+        <include-fragment fragment-id="fragment-audit-log" />
+    </inbound>
+
+    <backend>
+        <base />
+    </backend>
+
+    <outbound>
+        <base />
+        <!-- Never leak backend model/provider details to clients. -->
+        <set-header name="Server" exists-action="delete" />
+        <set-header name="x-ms-region" exists-action="delete" />
+    </outbound>
+
+    <on-error>
+        <base />
+        <choose>
+            <when condition="@(context.LastError.Source == "validate-azure-ad-token")">
+                <return-response>
+                    <set-status code="401" reason="Unauthorized" />
+                    <set-header name="Content-Type" exists-action="override"><value>application/json</value></set-header>
+                    <set-body>{"error":"access_revoked","message":"Your Entra ID token is invalid, expired, or you are no longer a member of an authorized AI Gateway team."}</set-body>
+                </return-response>
+            </when>
+            <when condition="@(context.LastError.Source == "ip-filter")">
+                <return-response>
+                    <set-status code="403" reason="Forbidden" />
+                    <set-body>{"error":"private_only","message":"AI Gateway is accessible only from the corporate network."}</set-body>
+                </return-response>
+            </when>
+        </choose>
+    </on-error>
+</policies>

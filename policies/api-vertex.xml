@@ -1,0 +1,96 @@
+<!--
+  API-level policy: Google Vertex AI
+  Path: /vertex/v1/projects/{project}/locations/{location}/publishers/google/models/{model}:generateContent
+  Backend: https://{{vertex-region}}-aiplatform.googleapis.com
+
+  Demonstrates:
+    - Scenario 3: Google service-account key stored in Key Vault; APIM
+      exchanges it for a short-lived OAuth token, cached for 55 min.
+    - Scenario 4: OpenAI-shaped request accepted; translated to Vertex
+      Gemini generateContent schema.
+    - Scenario 5: Vertex token counts emitted to the same namespace.
+-->
+<policies>
+    <inbound>
+        <base />
+
+        <include-fragment fragment-id="fragment-content-safety" />
+
+        <set-backend-service base-url="https://{{vertex-region}}-aiplatform.googleapis.com" />
+
+        <!-- SCENARIO 3: Fetch a Google OAuth token from cache (or mint one). -->
+        <cache-lookup-value key="vertex-oauth-token" variable-name="vertexToken" />
+        <choose>
+            <when condition="@(!context.Variables.ContainsKey("vertexToken"))">
+                <!-- Call an APIM-hosted helper (or Azure Function) that   -->
+                <!-- signs the JWT with the KV-stored service account and -->
+                <!-- exchanges it at https://oauth2.googleapis.com/token. -->
+                <send-request mode="new" response-variable-name="tokenResp" timeout="10" ignore-error="false">
+                    <set-url>{{vertex-token-broker-url}}</set-url>
+                    <set-method>POST</set-method>
+                    <set-header name="Content-Type" exists-action="override"><value>application/json</value></set-header>
+                    <set-body>{"scope":"https://www.googleapis.com/auth/cloud-platform"}</set-body>
+                </send-request>
+                <set-variable name="vertexToken" value="@((string)((IResponse)context.Variables["tokenResp"]).Body.As<JObject>()["access_token"])" />
+                <cache-store-value key="vertex-oauth-token" value="@((string)context.Variables["vertexToken"])" duration="3300" />
+            </when>
+        </choose>
+
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["vertexToken"])</value>
+        </set-header>
+        <set-header name="api-key" exists-action="delete" />
+
+        <!-- SCENARIO 4: Translate OpenAI-shape → Vertex Gemini schema. -->
+        <set-body>@{
+            var body = context.Request.Body.As<JObject>(preserveContent: false);
+            var messages = (JArray)(body["messages"] ?? new JArray());
+            var contents = new JArray();
+            foreach (var m in messages) {
+                var role = (string)m["role"];
+                var geminiRole = role == "assistant" ? "model" : "user";
+                contents.Add(new JObject(
+                    new JProperty("role", geminiRole),
+                    new JProperty("parts", new JArray(new JObject(new JProperty("text", (string)m["content"]))))
+                ));
+            }
+            return new JObject(
+                new JProperty("contents", contents),
+                new JProperty("generationConfig", new JObject(
+                    new JProperty("maxOutputTokens", (int?)body["max_tokens"] ?? 1024),
+                    new JProperty("temperature", (double?)body["temperature"] ?? 0.7)
+                ))
+            ).ToString();
+        }</set-body>
+
+        <rate-limit-by-key calls="120" renewal-period="60"
+            counter-key="@("vertex-" + (string)context.Variables["teamId"])"
+            remaining-calls-header-name="x-ratelimit-remaining"
+            retry-after-header-name="Retry-After" />
+    </inbound>
+
+    <backend>
+        <forward-request timeout="120" />
+    </backend>
+
+    <outbound>
+        <base />
+
+        <emit-metric name="TotalTokens" value="@{
+            var body = context.Response.Body.As<JObject>(preserveContent: true);
+            var usage = body?["usageMetadata"] as JObject;
+            var inTok  = (int?)usage?["promptTokenCount"]     ?? 0;
+            var outTok = (int?)usage?["candidatesTokenCount"] ?? 0;
+            return (double)(inTok + outTok);
+        }" namespace="enterprise-ai-gateway">
+            <dimension name="Team"       value="@((string)context.Variables["teamId"])" />
+            <dimension name="CostCenter" value="@((string)context.Variables["costCenter"])" />
+            <dimension name="Vendor"     value="vertex" />
+            <dimension name="Model"      value="@(context.Request.MatchedParameters.GetValueOrDefault("model","unknown"))" />
+        </emit-metric>
+    </outbound>
+
+    <on-error>
+        <base />
+    </on-error>
+</policies>

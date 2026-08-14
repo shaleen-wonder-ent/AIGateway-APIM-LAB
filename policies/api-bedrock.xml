@@ -1,0 +1,89 @@
+<!--
+  API-level policy: AWS Bedrock
+  Path: /bedrock/model/{modelId}/invoke
+  Backend: https://bedrock-runtime.{{aws-region}}.amazonaws.com
+
+  Demonstrates:
+    - Scenario 3: AWS access key + secret stored as Key Vault-backed
+      Named Values ({{bedrock-access-key}}, {{bedrock-secret-key}}).
+      Callers never see AWS credentials.
+    - Scenario 4: OpenAI-shaped chat request accepted; policy converts
+      it to Bedrock's Anthropic Messages schema.
+    - Scenario 5: Token usage emitted to the same App Insights namespace
+      as Foundry and Anthropic.
+
+  NOTE: AWS SigV4 signing is best done in a custom module or via a
+  sidecar. This policy shows the header-injection approach that works
+  when using AWS's IAM "bearer" temporary credentials or a pre-signed
+  proxy. For full SigV4 in-policy, deploy the sample at
+  https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/aws-bedrock
+-->
+<policies>
+    <inbound>
+        <base />
+
+        <include-fragment fragment-id="fragment-content-safety" />
+
+        <set-backend-service base-url="https://bedrock-runtime.{{aws-region}}.amazonaws.com" />
+
+        <!-- SCENARIO 3: Strip caller creds; inject AWS bearer token from KV. -->
+        <set-header name="Authorization" exists-action="override"><value>@("Bearer " + "{{bedrock-bearer-token}}")</value></set-header>
+        <set-header name="api-key"       exists-action="delete" />
+
+        <!-- SCENARIO 4: Translate OpenAI-shape → Bedrock Anthropic Messages. -->
+        <set-body>@{
+            var body = context.Request.Body.As<JObject>(preserveContent: false);
+            var maxTokens = (int?)body["max_tokens"] ?? 1024;
+            var messages = (JArray)(body["messages"] ?? new JArray());
+            string system = null;
+            var mapped = new JArray();
+            foreach (var m in messages) {
+                var role = (string)m["role"];
+                if (role == "system") { system = (string)m["content"]; continue; }
+                mapped.Add(new JObject(
+                    new JProperty("role", role),
+                    new JProperty("content", m["content"])
+                ));
+            }
+            var outBody = new JObject(
+                new JProperty("anthropic_version", "bedrock-2023-05-31"),
+                new JProperty("max_tokens", maxTokens),
+                new JProperty("messages", mapped)
+            );
+            if (system != null) outBody["system"] = system;
+            return outBody.ToString();
+        }</set-body>
+
+        <!-- SCENARIO 2: Per-team RPM throttling. -->
+        <rate-limit-by-key calls="120" renewal-period="60"
+            counter-key="@("bedrock-" + (string)context.Variables["teamId"])"
+            remaining-calls-header-name="x-ratelimit-remaining"
+            retry-after-header-name="Retry-After" />
+    </inbound>
+
+    <backend>
+        <forward-request timeout="120" />
+    </backend>
+
+    <outbound>
+        <base />
+
+        <!-- SCENARIO 5: Emit token usage into unified namespace. -->
+        <emit-metric name="TotalTokens" value="@{
+            var body = context.Response.Body.As<JObject>(preserveContent: true);
+            var usage = body?["usage"] as JObject;
+            var inTok  = (int?)usage?["input_tokens"] ?? 0;
+            var outTok = (int?)usage?["output_tokens"] ?? 0;
+            return (double)(inTok + outTok);
+        }" namespace="enterprise-ai-gateway">
+            <dimension name="Team"       value="@((string)context.Variables["teamId"])" />
+            <dimension name="CostCenter" value="@((string)context.Variables["costCenter"])" />
+            <dimension name="Vendor"     value="bedrock" />
+            <dimension name="Model"      value="@(context.Request.MatchedParameters.GetValueOrDefault("modelId","unknown"))" />
+        </emit-metric>
+    </outbound>
+
+    <on-error>
+        <base />
+    </on-error>
+</policies>

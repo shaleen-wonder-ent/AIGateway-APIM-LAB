@@ -1,0 +1,22 @@
+<!--
+  Policy Fragment: fragment-content-safety
+  Purpose: Consistent Responsible AI guardrails applied to EVERY vendor
+  (Foundry, Anthropic, Bedrock, Vertex) so governance does not vary by
+  provider. Blocks harmful content and prompt-injection / jailbreak
+  attempts before the request reaches the model.
+
+  Prereqs:
+    - Azure AI Content Safety resource
+    - APIM backend "contentsafety-backend" pointing to its endpoint
+    - APIM managed identity granted "Cognitive Services User" on it
+-->
+<fragment>
+    <llm-content-safety backend-id="contentsafety-backend" shield-prompt="true">
+        <categories output-type="EightSeverityLevels">
+            <category name="Hate"     threshold="4" />
+            <category name="Sexual"   threshold="4" />
+            <category name="SelfHarm" threshold="2" />
+            <category name="Violence" threshold="4" />
+        </categories>
+    </llm-content-safety>
+</fragment>

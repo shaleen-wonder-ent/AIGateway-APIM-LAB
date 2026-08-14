@@ -1,0 +1,28 @@
+<!--
+  Product policy: Team-Finance
+  Tier: 20,000 TPM / 200 RPM / 2M tokens/day. Strictest content safety
+  applied downstream because finance data is sensitive.
+-->
+<policies>
+    <inbound>
+        <base />
+
+        <azure-openai-token-limit
+            tokens-per-minute="20000"
+            counter-key="@("finance-tpm")"
+            estimate-prompt-tokens="true"
+            tokens-consumed-header-name="x-tokens-consumed"
+            remaining-tokens-header-name="x-tokens-remaining" />
+
+        <rate-limit-by-key calls="200" renewal-period="60"
+            counter-key="@("finance-rpm")"
+            remaining-calls-header-name="x-ratelimit-remaining"
+            retry-after-header-name="Retry-After" />
+
+        <quota-by-key calls="2000000" renewal-period="86400"
+            counter-key="@("finance-daily")" />
+    </inbound>
+    <backend><base /></backend>
+    <outbound><base /></outbound>
+    <on-error><base /></on-error>
+</policies>

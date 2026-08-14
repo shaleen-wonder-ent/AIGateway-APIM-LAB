@@ -1,0 +1,72 @@
+### Enterprise AI Gateway — Demo test requests
+### Use the VS Code REST Client extension to run these.
+
+@gateway    = https://<your-apim>.azure-api.net
+@token      = <paste Entra ID access token here>
+
+### Scenario 4: Foundry (Azure OpenAI) — OpenAI-shaped request
+POST {{gateway}}/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-02-01
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "messages": [
+    {"role": "system", "content": "You are a concise assistant."},
+    {"role": "user",   "content": "Summarize the value of an AI Gateway in 2 lines."}
+  ],
+  "max_tokens": 150
+}
+
+### Scenario 4: Anthropic — same OpenAI-shaped request
+POST {{gateway}}/anthropic/v1/messages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "messages": [
+    {"role": "user", "content": "Summarize the value of an AI Gateway in 2 lines."}
+  ],
+  "max_tokens": 150
+}
+
+### Scenario 4: Bedrock — same shape, different path
+POST {{gateway}}/bedrock/model/anthropic.claude-3-5-sonnet-20241022-v2:0/invoke
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "messages": [
+    {"role": "user", "content": "Summarize the value of an AI Gateway in 2 lines."}
+  ],
+  "max_tokens": 150
+}
+
+### Scenario 4: Vertex — same shape
+POST {{gateway}}/vertex/v1/projects/aigw-demo/locations/us-central1/publishers/google/models/gemini-1.5-pro:generateContent
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "messages": [
+    {"role": "user", "content": "Summarize the value of an AI Gateway in 2 lines."}
+  ],
+  "max_tokens": 150
+}
+
+### Scenario 2: Trigger token-limit 429 (blast Marketing tier)
+POST {{gateway}}/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-02-01
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "messages": [{"role":"user","content":"Write a 2000-word essay on cloud governance."}],
+  "max_tokens": 4000
+}
+
+### Scenario 1: After removing user from AIGW-Team-Marketing → expect 401
+POST {{gateway}}/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-02-01
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"messages":[{"role":"user","content":"ping"}], "max_tokens": 10}

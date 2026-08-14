@@ -1,0 +1,21 @@
+<!--
+  Policy Fragment: fragment-auth-entra
+  Purpose: Optional stricter re-validation (e.g., enforce a specific team
+  group at the API scope). The GLOBAL policy already validates the token
+  and populates teamId/userUpn/costCenter. Use this fragment only when an
+  API must be restricted to a subset of teams.
+
+  Usage inside an API policy:
+    <include-fragment fragment-id="fragment-auth-entra" />
+-->
+<fragment>
+    <choose>
+        <when condition="@((string)context.Variables["teamId"] == "unassigned")">
+            <return-response>
+                <set-status code="403" reason="Forbidden" />
+                <set-header name="Content-Type" exists-action="override"><value>application/json</value></set-header>
+                <set-body>{"error":"no_team","message":"Caller is not a member of any AI Gateway team."}</set-body>
+            </return-response>
+        </when>
+    </choose>
+</fragment>
