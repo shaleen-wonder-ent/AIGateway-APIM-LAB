@@ -36,6 +36,7 @@
             </client-application-ids>
             <audiences>
                 <audience>{{aigw-audience}}</audience>
+                <audience>{{aigw-client-app-id}}</audience>
             </audiences>
             <required-claims>
                 <claim name="groups" match="any">

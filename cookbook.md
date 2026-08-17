@@ -559,6 +559,25 @@ one change updates all of them.
 > shared fragment. Change it once, and all APIs inherit the update — consistent
 > Responsible AI governance across every model vendor."
 
+**Likely customer question: "Don't the models already do content safety themselves?"**
+
+Yes — every major model (Azure OpenAI/Foundry, Anthropic, Bedrock, Vertex) has built-in
+safety filters. The gateway check is **defense in depth**, not a replacement, and it adds
+what the models' own filters cannot:
+
+| Aspect | Model's built-in filter | Gateway content safety |
+|---|---|---|
+| Consistency | Different categories/thresholds per vendor | One identical policy across all vendors |
+| Control | Vendor decides, limited tuning | You set thresholds centrally |
+| Cost | Model still runs → you pay tokens | Blocked before the model → no spend |
+| Jailbreak shield | Varies, not always exposed | Uniform Azure Prompt Shields (`shield-prompt`) |
+| Audit | Siloed per vendor | One audit trail in your App Insights |
+| Enforcement | An app could pick a weaker vendor | Same guardrail for every team and vendor |
+
+> One-liner: **"The model protects itself; the gateway protects the enterprise —
+> one consistent, tunable, auditable safety and jailbreak policy across all vendors,
+> applied before you pay for a single token."**
+
 ---
 
 ### Demo 5 — Chargeback and audit with KQL

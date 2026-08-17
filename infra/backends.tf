@@ -3,7 +3,8 @@ resource "azurerm_api_management_backend" "foundry" {
   api_management_name = azurerm_api_management.apim.name
   resource_group_name = azurerm_resource_group.rg.name
   protocol            = "http"
-  url                 = "${azurerm_cognitive_account.foundry.endpoint}openai"
+  # Host root only; the operation template already includes the /openai prefix.
+  url = trimsuffix(azurerm_cognitive_account.foundry.endpoint, "/")
 }
 
 resource "azurerm_api_management_backend" "embeddings" {

@@ -11,6 +11,12 @@
     - APIM managed identity granted "Cognitive Services User" on it
 -->
 <fragment>
+    <!-- Content Safety has local-key auth disabled; attach an APIM managed-identity
+         token so llm-content-safety authenticates instead of forwarding the caller token. -->
+    <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="cs-msi-token" />
+    <set-header name="Authorization" exists-action="override">
+        <value>@("Bearer " + (string)context.Variables["cs-msi-token"])</value>
+    </set-header>
     <llm-content-safety backend-id="contentsafety-backend" shield-prompt="true">
         <categories output-type="EightSeverityLevels">
             <category name="Hate"     threshold="4" />
