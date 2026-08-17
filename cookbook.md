@@ -109,7 +109,82 @@ gateway in front of Microsoft Foundry (Azure OpenAI).
 | 6 | Leaked-key blast radius | Network restriction + identity + subscription all required |
 | 7 | Inconsistent governance | One shared content-safety policy fragment used by all APIs |
 
-### 2.3 What "success" looks like in a demo
+### 2.3 The lab structure at a glance
+
+To make the demos work, the lab wires together three layers: **identity** (Entra ID),
+the **gateway** (APIM), and the **backing Azure services**. The diagram shows what was
+created and how the pieces connect.
+
+```mermaid
+flowchart TB
+    subgraph ENTRA["Microsoft Entra ID (tenant 16b3c013…)"]
+        CALLER["Caller app<br/>Azure CLI<br/>04b07795…"]
+        GWAPP["Gateway API app<br/>api://246e2a64…<br/>scope: access_as_user"]
+        G1["Group: Marketing<br/>0029aa0d…"]
+        G2["Group: Engineering<br/>3f72160c…"]
+        G3["Group: Finance<br/>22faf4f9…"]
+        USER["Demo user<br/>(member of Marketing + Engineering)"]
+        USER --- G1
+        USER --- G2
+        CALLER -->|requests token for| GWAPP
+    end
+
+    subgraph RG["Resource group: rg-aigw-demo"]
+        subgraph APIM["API Management: apim-aigw-shaleent-001 (the AI Gateway)"]
+            GLOBAL["Global policy<br/>network filter · Entra validation<br/>team extraction · audit"]
+            subgraph APIS["APIs (one operation each)"]
+                AF["foundry"]
+                AA["anthropic"]
+                AB["bedrock"]
+                AV["vertex"]
+            end
+            subgraph PRODUCTS["Products = team plans"]
+                PM["Marketing<br/>50K TPM"]
+                PE["Engineering<br/>500K TPM"]
+                PF["Finance<br/>20K TPM"]
+            end
+            subgraph SUBS["Subscriptions (keys)"]
+                SM["team-marketing"]
+                SE["team-engineering"]
+                SF["team-finance"]
+            end
+            FRAG["Shared fragment<br/>content-safety"]
+            MI["Managed identity<br/>(Cognitive Services User)"]
+        end
+
+        FOUNDRY["Azure OpenAI / Foundry<br/>aoai-apim-aigw-shaleent-001<br/>gpt-4o · text-embedding-ada-002"]
+        CS["Content Safety<br/>cs-apim-aigw-shaleent-001"]
+        AI["App Insights<br/>appi-…"]
+        LAW["Log Analytics<br/>law-…"]
+    end
+
+    USER -->|Entra token + subscription key + prompt| GLOBAL
+    GLOBAL --> APIS
+    PM --- SM
+    PE --- SE
+    PF --- SF
+    PRODUCTS -.applies quotas to.-> APIS
+    APIS --> FRAG
+    FRAG --> MI
+    MI -->|managed identity token| FOUNDRY
+    FRAG -->|checks content| CS
+    GLOBAL -.audit + metrics.-> AI
+    AI --- LAW
+```
+
+**How to read it:**
+
+- **Entra ID** holds the three team **groups**, the **gateway app** (whose ID is the
+  token audience), and the **caller app** (Azure CLI) that is allowed to request tokens.
+  The demo user belongs to Marketing and Engineering, but not Finance.
+- **APIM** is the gateway. Every request hits the **global policy** first, then an
+  **API** (one per vendor), governed by the caller's **product/team plan** and its
+  **subscription key**. All APIs share one **content-safety fragment**, and APIM uses
+  its **managed identity** to reach Foundry with no stored key.
+- **Backing services**: Foundry hosts the models, Content Safety screens content, and
+  App Insights + Log Analytics capture audit and chargeback telemetry.
+
+### 2.4 What "success" looks like in a demo
 
 For each demo you will show **two halves**:
 
