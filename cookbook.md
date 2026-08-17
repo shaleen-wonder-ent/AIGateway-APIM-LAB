@@ -461,6 +461,36 @@ Invoke-RestMethod -Method Post -Uri "$gateway/foundry/openai/deployments/gpt-4o/
 > "The user authenticated to the gateway; the gateway authenticated to the model. Those
 > are two separate trust relationships. No model key ever touches the client."
 
+**Likely customer question: "The caller still holds an APIM subscription key — isn't
+that just as risky as holding the model's API key?"**
+
+No — the APIM key is a **plan selector**, not a **model credential**. On its own it
+grants nothing; it must be paired with a valid Entra identity.
+
+| | LLM API key | APIM subscription key |
+|---|---|---|
+| Unlocks | The **model** directly | The **gateway**, which then decides |
+| Enough by itself? | **Yes** — anyone holding it is in | **No** — also needs a valid Entra token + right team |
+| Identity | Anonymous | Bound to user / team / cost center |
+| Limits & safety | None | Per-team quotas + content safety + audit |
+| Revocation | Rotate → breaks every app (only 2 keys) | Revoke one team/app subscription; others unaffected |
+| If leaked | Model called from anywhere, unlimited, untracked | Still `401` without a valid Entra token |
+
+> One-liner: **"The APIM key is your account number — it says which plan to bill and
+> rate-limit. The Entra token is your badge — it proves who you are. The LLM key is the
+> master key to the vault. The account number alone opens nothing."**
+
+You already proved this in the controls above: a **valid** subscription key with an
+**invalid token** returns `401`, and (in Demo 2) a valid Finance key with a wrong-team
+token returns `403`. The key never grants access on its own. Also note the model key
+**never exists on the client or even in APIM** — the gateway reaches Foundry with a
+managed identity, so there is no LLM key anywhere to steal.
+
+> Honest nuance: the APIM key is still a secret worth protecting — but its power is far
+> smaller (an inert, rate-limited, audited, identity-gated plan selector). You can go
+> fully keyless and map the team purely from the token's group claim if a customer wants
+> to remove it entirely.
+
 **The controls (blocks).** Show the two different failures. A small helper prints the
 status, reason, and body so each rejection reads distinctly on screen.
 
