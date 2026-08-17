@@ -426,38 +426,72 @@ $response.usage | Format-List
 4. There is **no Foundry API key** anywhere.
 5. The model answers, and `usage` shows tokens consumed.
 
+**Make each point visible on screen** — the raw call only *shows* #1 and #5; reveal the
+rest with these tiny commands. **Never print `$token` or `$key` raw during a screen
+share** — the commands below show evidence, not secrets.
+
+```powershell
+# #1 — the endpoint is the gateway, not the model
+$gateway
+
+# #2 — the Entra token proves WHO the user is (identity claims only, not the token)
+$p = $token.Split('.')[1].Replace('-','+').Replace('_','/'); while($p.Length % 4){$p += '='}
+$claims = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($p)) | ConvertFrom-Json
+[pscustomobject]@{ User=$claims.name; UPN=$claims.preferred_username; ClientApp=$claims.azp; Scope=$claims.scp; TeamGroups=@($claims.groups).Count } | Format-List
+
+# #3 and #4 — header NAMES only: a team subscription is present, an api-key is NOT
+"Team plan in use: team-marketing"
+$headers.Keys
+```
+
+The `$headers.Keys` output is your strongest moment: it lists `Authorization`,
+`Ocp-Apim-Subscription-Key`, and `Content-Type` — **no `api-key`**. Point at what is
+missing.
+
+Optional power move — prove the gateway strips a key even if a caller sneaks one in:
+
+```powershell
+$sneaky = $headers.Clone(); $sneaky["api-key"] = "sk-fake-model-key-123"
+Invoke-RestMethod -Method Post -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" -Headers $sneaky -Body $body | Out-Null
+"Still worked — the gateway ignored/stripped the caller's api-key and used managed identity."
+```
+
 **What to say**
 
 > "The user authenticated to the gateway; the gateway authenticated to the model. Those
 > are two separate trust relationships. No model key ever touches the client."
 
-**The control (block):** remove the subscription key and call again — it is rejected
-because the product subscription is required.
+**The controls (blocks).** Show the two different failures. A small helper prints the
+status, reason, and body so each rejection reads distinctly on screen.
 
 ```powershell
-$noKey = @{ Authorization = "Bearer $token"; "Content-Type" = "application/json" }
-try {
-  Invoke-RestMethod -Method Post `
-    -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" `
-    -Headers $noKey -Body $body
-} catch {
-  "Blocked as expected: HTTP $([int]$_.Exception.Response.StatusCode)"
+function Show-Block($label, $hdrs) {
+  try {
+    Invoke-RestMethod -Method Post -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" -Headers $hdrs -Body $body | Out-Null
+    "$label`: UNEXPECTED SUCCESS"
+  } catch {
+    $resp = $_.Exception.Response
+    "=== $label ==="; "Status : $([int]$resp.StatusCode) $($resp.ReasonPhrase)"; "Body   : $($_.ErrorDetails.Message)"
+  }
 }
+
+# Control A — no team subscription key
+Show-Block 'A) Missing subscription key' @{ Authorization = "Bearer $token"; "Content-Type" = "application/json" }
+
+# Control B — invalid identity token
+Show-Block 'B) Invalid identity token' @{ Authorization = "Bearer not.a.real.token"; "Ocp-Apim-Subscription-Key" = $key; "Content-Type" = "application/json" }
 ```
 
-**Second control (identity):** send an invalid Entra token — the gateway rejects it
-before the model is ever contacted. This is usually the most convincing moment.
+Both return **HTTP 401**, but for **different reasons** — read the reason + body aloud:
 
-```powershell
-$badTok = @{ Authorization = "Bearer not.a.real.token"; "Ocp-Apim-Subscription-Key" = $key; "Content-Type" = "application/json" }
-try {
-  Invoke-RestMethod -Method Post `
-    -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" `
-    -Headers $badTok -Body $body
-} catch {
-  "Blocked as expected: HTTP $([int]$_.Exception.Response.StatusCode)"
-}
-```
+| Control | Status | Reason / body | Why |
+|---|---|---|---|
+| A) No subscription key | `401 Access Denied` | *"…missing subscription key…"* | Enforced by the APIM platform **before** any policy runs — no team plan, no entry |
+| B) Invalid identity | `401 Unauthorized` | `{"error":"access_revoked", …}` | Enforced by **our policy** — the identity is rejected before the model is contacted |
+
+> The two failures share the `401` code by design: A is a platform-level subscription
+> check, B is our Entra validation. The **reason phrase and body** are what make them
+> distinct on screen — that is the point to narrate, not the number.
 
 > **Presenter tip:** the Entra token is short-lived (~60–90 min). Re-run the Part 4.3
 > setup block to refresh `$token` right before you present, or it may expire mid-demo.
