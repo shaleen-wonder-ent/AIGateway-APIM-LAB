@@ -498,44 +498,68 @@ Both return **HTTP 401**, but for **different reasons** — read the reason + bo
 
 ---
 
-### Demo 2 — Access revocation via team membership
+### Demo 2 — Cross-team authorization (you can't use another team's plan)
 
-**Goal:** show that removing someone from a team instantly revokes their access.
+**Goal:** show that a team's subscription only works for members of that team — using
+another team's key is rejected, and the model is never called.
 
-**What you show:** a Finance-only call fails because the demo user is **not** in Finance;
-conceptually the same mechanism revokes a departed employee.
+**What you show:** your token (Marketing + Engineering) works with the Marketing and
+Engineering keys, but the **Finance** key is blocked because your identity is not in the
+Finance group.
+
+**How it works:** each product policy checks the caller's token for **that team's** Entra
+group. The subscription key says *which plan*; the token says *who you are* — and both
+must agree. See [policies/product-team-finance.xml](policies/product-team-finance.xml).
 
 **Steps**
 
 ```powershell
-# The signed-in user is NOT in Finance. Using the Finance key still fails identity
-# because the token has no Finance group claim.
-$financeKey = Get-TeamKey "team-finance"
+$body = @{ messages = @(@{ role = "user"; content = "ping" }); max_tokens = 5 } | ConvertTo-Json -Depth 5
 
-$headers = @{
-  Authorization               = "Bearer $token"
-  "Ocp-Apim-Subscription-Key" = $financeKey
-  "Content-Type"              = "application/json"
+function Try-Team($label, $team) {
+  $h = @{ Authorization = "Bearer $token"; "Ocp-Apim-Subscription-Key" = (Get-TeamKey $team); "Content-Type" = "application/json" }
+  try {
+    $r = Invoke-RestMethod -Method Post -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" -Headers $h -Body $body
+    "$label -> SUCCESS (200): $($r.choices[0].message.content)"
+  } catch {
+    $resp = $_.Exception.Response
+    "$label -> HTTP $([int]$resp.StatusCode) $($resp.ReasonPhrase) | $($_.ErrorDetails.Message)"
+  }
 }
 
-try {
-  Invoke-RestMethod -Method Post `
-    -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" `
-    -Headers $headers -Body $body
-} catch {
-  "Blocked as expected: HTTP $([int]$_.Exception.Response.StatusCode)"
-}
+Try-Team 'Marketing key (you ARE marketing)'   'team-marketing'
+Try-Team 'Engineering key (you ARE engineering)' 'team-engineering'
+Try-Team 'Finance key (you are NOT finance)'    'team-finance'
 ```
+
+**Expected result**
+
+| Key used | Your token has that group? | Result |
+|---|---|---|
+| `team-marketing` | Yes | `200` — model answers |
+| `team-engineering` | Yes | `200` — model answers |
+| `team-finance` | No | `403 Forbidden` — `{"error":"wrong_team", …}` |
 
 **What to say**
 
-> "Access is driven by Entra group membership carried in the token. When someone leaves
-> a team, their next token no longer contains that group, and the gateway rejects them.
-> There is no long-lived key to hunt down and revoke."
+> "The subscription key says *which plan*; the Entra token says *who you are*. The gateway
+> requires both to agree. This user isn't in Finance, so even with a valid Finance key the
+> request is refused — before the model is ever contacted. One team cannot spend another
+> team's allocation."
 
-**Live variation (optional):** remove yourself from the Marketing group in Entra, run
-`az login` again to refresh the token, and repeat Demo 1 — it now fails. Re-add yourself
-afterwards.
+**Variation — true revocation (the 'departed employee' story).** This proves problem #1
+from Part 2: membership change revokes access on the next token.
+
+1. Remove yourself from **all** three groups in Entra (Marketing, Engineering, Finance).
+2. Refresh the token: `az login --tenant $tenant --scope "api://$appId/access_as_user"`,
+   then re-run the Part 4.3 setup block.
+3. Repeat Demo 1 — it now fails at the global policy with
+   `401 { "error": "access_revoked", … }`, because the token no longer contains any
+   authorized group.
+4. Re-add yourself to Marketing and Engineering afterwards.
+
+> Do this variation only if you can tolerate briefly locking your own access out. For a
+> customer session, the cross-team block above is the safer, repeatable demonstration.
 
 ---
 

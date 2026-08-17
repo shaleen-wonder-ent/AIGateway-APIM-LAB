@@ -6,6 +6,23 @@
     <inbound>
         <base />
 
+        <!-- Cross-team guard: the caller's token must belong to THIS team. -->
+        <set-variable name="teamMatch" value="@{
+            var jwt = context.Request.Headers.GetValueOrDefault("Authorization","").Replace("Bearer ","").AsJwt();
+            var groups = jwt?.Claims.GetValueOrDefault("groups","");
+            if (groups != null && groups.Contains("{{group-team-engineering}}")) { return "yes"; }
+            return "no";
+        }" />
+        <choose>
+            <when condition="@((string)context.Variables["teamMatch"] == "no")">
+                <return-response>
+                    <set-status code="403" reason="Forbidden" />
+                    <set-header name="Content-Type" exists-action="override"><value>application/json</value></set-header>
+                    <set-body>{"error":"wrong_team","message":"Your identity is not a member of the team that owns this subscription."}</set-body>
+                </return-response>
+            </when>
+        </choose>
+
         <azure-openai-token-limit
             tokens-per-minute="500000"
             counter-key="@("engineering-tpm")"
