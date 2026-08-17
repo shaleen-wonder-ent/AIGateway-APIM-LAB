@@ -31,6 +31,12 @@ variable "publisher_email" {
   default = "aigw-admin@example.com"
 }
 
+variable "enable_private_ip_filter" {
+  type        = bool
+  description = "Restrict APIM callers to RFC1918 source addresses. Disable only for controlled public demos."
+  default     = true
+}
+
 # ---------------- Entra ID / Team groups ----------------
 
 variable "entra_tenant_id" {
@@ -39,7 +45,17 @@ variable "entra_tenant_id" {
 
 variable "aigw_client_app_id" {
   type        = string
-  description = "Entra ID app registration exposed as api://enterprise-ai-gateway."
+  description = "Entra ID application ID that exposes the AI Gateway API."
+}
+
+variable "aigw_caller_client_app_id" {
+  type        = string
+  description = "Entra ID application ID allowed to call the AI Gateway API."
+}
+
+variable "aigw_audience" {
+  type        = string
+  description = "Expected token audience (usually api://<appId> or the appId)."
 }
 
 variable "group_team_marketing" {

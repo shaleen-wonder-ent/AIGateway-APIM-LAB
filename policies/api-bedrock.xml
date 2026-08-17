@@ -50,7 +50,7 @@
                 new JProperty("max_tokens", maxTokens),
                 new JProperty("messages", mapped)
             );
-            if (system != null) outBody["system"] = system;
+            if (system != null) { outBody["system"] = system; }
             return outBody.ToString();
         }</set-body>
 

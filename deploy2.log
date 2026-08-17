@@ -1,0 +1,594 @@
+[0m[1mdata.azurerm_client_config.current: Reading...[0m[0m
+[0m[1mazurerm_resource_group.rg: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo][0m
+[0m[1mdata.azurerm_client_config.current: Read complete after 0s [id=Y2xpZW50Q29uZmlncy9jbGllbnRJZD0wNGIwNzc5NS04ZGRiLTQ2MWEtYmJlZS0wMmY5ZTFiZjdiNDY7b2JqZWN0SWQ9MTkwNzM3YjQtOTNhNi00MDNkLThmNzEtZjdkNmIyY2RmYWU5O3N1YnNjcmlwdGlvbklkPTA5ZTdjMWNiLTUzY2EtNGQwNS1iY2YwLTg4ODFjNDJlNjgwZTt0ZW5hbnRJZD0xNmIzYzAxMy1kMzAwLTQ2OGQtYWM2NC03ZWRhMDgyMGI2ZDM=][0m
+[0m[1mazurerm_cognitive_account.content_safety: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.CognitiveServices/accounts/cs-apim-aigw-shaleent-001][0m
+[0m[1mazurerm_key_vault.kv: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.KeyVault/vaults/kv-apimaigwshaleent00][0m
+[0m[1mazurerm_log_analytics_workspace.law: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.OperationalInsights/workspaces/law-apim-aigw-shaleent-001][0m
+[0m[1mazurerm_cognitive_account.foundry: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.CognitiveServices/accounts/aoai-apim-aigw-shaleent-001][0m
+[0m[1mazurerm_api_management.apim: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001][0m
+[0m[1mazurerm_cognitive_deployment.embeddings: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.CognitiveServices/accounts/aoai-apim-aigw-shaleent-001/deployments/text-embedding-ada-002][0m
+[0m[1mazurerm_role_assignment.apim_foundry: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.CognitiveServices/accounts/aoai-apim-aigw-shaleent-001/providers/Microsoft.Authorization/roleAssignments/388b77f1-16e4-8940-cb8a-cb23fdc2a1d8][0m
+[0m[1mazurerm_api_management_backend.content_safety: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/backends/contentsafety-backend][0m
+[0m[1mazurerm_api_management_backend.embeddings: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/backends/embeddings-backend][0m
+[0m[1mazurerm_api_management_api.anthropic: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/apis/anthropic;rev=1][0m
+[0m[1mazurerm_api_management_api.foundry: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/apis/foundry;rev=1][0m
+[0m[1mazurerm_api_management_api.vertex: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/apis/vertex;rev=1][0m
+[0m[1mazurerm_api_management_backend.foundry: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/backends/foundry-backend][0m
+[0m[1mazurerm_role_assignment.apim_content_safety: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.CognitiveServices/accounts/cs-apim-aigw-shaleent-001/providers/Microsoft.Authorization/roleAssignments/4c2ef2ca-984e-48ed-07ec-15f424e91d62][0m
+[0m[1mazurerm_api_management_api.bedrock: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/apis/bedrock;rev=1][0m
+[0m[1mazurerm_api_management_product.team["finance"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-finance][0m
+[0m[1mazurerm_api_management_product.team["marketing"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-marketing][0m
+[0m[1mazurerm_api_management_product.team["engineering"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-engineering][0m
+[0m[1mazurerm_api_management_named_value.plain["group-team-marketing"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/namedValues/group-team-marketing][0m
+[0m[1mazurerm_api_management_named_value.plain["entra-tenant-id"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/namedValues/entra-tenant-id][0m
+[0m[1mazurerm_api_management_named_value.plain["aigw-client-app-id"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/namedValues/aigw-client-app-id][0m
+[0m[1mazurerm_api_management_named_value.plain["group-team-finance"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/namedValues/group-team-finance][0m
+[0m[1mazurerm_api_management_named_value.plain["aigw-audience"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/namedValues/aigw-audience][0m
+[0m[1mazurerm_api_management_named_value.plain["group-team-engineering"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/namedValues/group-team-engineering][0m
+[0m[1mazurerm_api_management_named_value.plain["aws-region"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/namedValues/aws-region][0m
+[0m[1mazurerm_api_management_named_value.plain["vertex-token-broker-url"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/namedValues/vertex-token-broker-url][0m
+[0m[1mazurerm_api_management_named_value.plain["vertex-region"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/namedValues/vertex-region][0m
+[0m[1mazurerm_application_insights.ai: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.Insights/components/appi-apim-aigw-shaleent-001][0m
+[0m[1mazurerm_api_management_policy_fragment.content_safety: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/policyFragments/fragment-content-safety][0m
+[0m[1mazurerm_api_management_product_api.attach["marketing-anthropic"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-marketing/apis/anthropic][0m
+[0m[1mazurerm_api_management_product_policy.team["finance"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-finance][0m
+[0m[1mazurerm_api_management_product_api.attach["finance-anthropic"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-finance/apis/anthropic][0m
+[0m[1mazurerm_api_management_product_api.attach["marketing-foundry"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-marketing/apis/foundry][0m
+[0m[1mazurerm_api_management_product_policy.team["engineering"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-engineering][0m
+[0m[1mazurerm_api_management_product_policy.team["marketing"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-marketing][0m
+[0m[1mazurerm_api_management_product_api.attach["marketing-vertex"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-marketing/apis/vertex][0m
+[0m[1mazurerm_api_management_product_api.attach["engineering-anthropic"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-engineering/apis/anthropic][0m
+[0m[1mazurerm_api_management_product_api.attach["finance-foundry"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-finance/apis/foundry][0m
+[0m[1mazurerm_api_management_product_api.attach["finance-vertex"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-finance/apis/vertex][0m
+[0m[1mazurerm_api_management_product_api.attach["engineering-vertex"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-engineering/apis/vertex][0m
+[0m[1mazurerm_api_management_product_api.attach["marketing-bedrock"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-marketing/apis/bedrock][0m
+[0m[1mazurerm_api_management_product_api.attach["finance-bedrock"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-finance/apis/bedrock][0m
+[0m[1mazurerm_api_management_product_api.attach["engineering-foundry"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-engineering/apis/foundry][0m
+[0m[1mazurerm_api_management_product_api.attach["engineering-bedrock"]: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/products/team-engineering/apis/bedrock][0m
+[0m[1mazurerm_api_management_api_policy.vertex: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/apis/vertex][0m
+[0m[1mazurerm_api_management_api_policy.foundry: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/apis/foundry][0m
+[0m[1mazurerm_api_management_logger.appi: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001/loggers/appinsights-logger][0m
+[0m[1mazurerm_role_assignment.tf_kv_admin: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.KeyVault/vaults/kv-apimaigwshaleent00/providers/Microsoft.Authorization/roleAssignments/c9fd6af7-784d-043d-0872-62927fe9c860][0m
+[0m[1mazurerm_role_assignment.apim_kv: Refreshing state... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.KeyVault/vaults/kv-apimaigwshaleent00/providers/Microsoft.Authorization/roleAssignments/f9efdccc-26ac-d42c-264c-651109cdb67a][0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [32m+[0m create[0m
+  [33m~[0m update in-place[0m
+
+Terraform will perform the following actions:
+
+[1m  # azurerm_api_management_api_policy.anthropic[0m will be created
+[0m  [32m+[0m[0m resource "azurerm_api_management_api_policy" "anthropic" {
+      [32m+[0m[0m api_management_name = "apim-aigw-shaleent-001"
+      [32m+[0m[0m api_name            = "anthropic"
+      [32m+[0m[0m id                  = (known after apply)
+      [32m+[0m[0m resource_group_name = "rg-aigw-demo"
+      [32m+[0m[0m xml_content         = <<-EOT
+            <!--
+              API-level policy: Anthropic (api.anthropic.com)
+              Path: /anthropic/v1/messages
+              Backend: https://api.anthropic.com
+            
+              Demonstrates:
+                - Scenario 3: Anthropic API key stored in Key Vault ΓåÆ APIM Named
+                  Value {{anthropic-api-key}}. Callers never see it.
+                - Scenario 4: Same OpenAI-style JSON accepted; policy transforms it
+                  to Anthropic's schema so client SDKs stay identical across vendors.
+                - Scenario 7: Same content safety + audit fragments as Foundry.
+            -->
+            <policies>
+                <inbound>
+                    <base />
+            
+                    <!-- Consistent safety guardrails -->
+                    <include-fragment fragment-id="fragment-content-safety" />
+            
+                    <set-backend-service base-url="https://api.anthropic.com" />
+            
+                    <!-- SCENARIO 3: Inject vendor key from Key Vault-backed Named Value -->
+                    <set-header name="x-api-key"          exists-action="override"><value>{{anthropic-api-key}}</value></set-header>
+                    <set-header name="anthropic-version"  exists-action="override"><value>2023-06-01</value></set-header>
+                    <set-header name="Authorization"      exists-action="delete" />
+                    <set-header name="api-key"            exists-action="delete" />
+            
+                    <!-- SCENARIO 4: Accept OpenAI-shaped payload; translate to Anthropic. -->
+                    <set-body>@{
+                        var body = context.Request.Body.As<JObject>(preserveContent: false);
+                        var model = (string)(body["model"] ?? "claude-3-5-sonnet-20241022");
+                        var maxTokens = (int?)body["max_tokens"] ?? 1024;
+                        var messages = (JArray)(body["messages"] ?? new JArray());
+                        string system = null;
+                        var mapped = new JArray();
+                        foreach (var m in messages) {
+                            var role = (string)m["role"];
+                            if (role == "system") { system = (string)m["content"]; continue; }
+                            mapped.Add(new JObject(
+                                new JProperty("role", role),
+                                new JProperty("content", m["content"])
+                            ));
+                        }
+                        var outBody = new JObject(
+                            new JProperty("model", model),
+                            new JProperty("max_tokens", maxTokens),
+                            new JProperty("messages", mapped)
+                        );
+                        if (system != null) outBody["system"] = system;
+                        return outBody.ToString();
+                    }</set-body>
+            
+                    <!-- SCENARIO 2: Approximate token-based throttling by request count. -->
+                    <!-- (azure-openai-token-limit only supports OpenAI-shaped responses.)-->
+                    <rate-limit-by-key calls="120" renewal-period="60"
+                        counter-key="@("anthropic-" + (string)context.Variables["teamId"])"
+                        remaining-calls-header-name="x-ratelimit-remaining"
+                        retry-after-header-name="Retry-After" />
+                </inbound>
+            
+                <backend>
+                    <forward-request timeout="120" />
+                </backend>
+            
+                <outbound>
+                    <base />
+            
+                    <!-- SCENARIO 5: Emit Anthropic token usage as a custom metric so -->
+                    <!-- Foundry + vendor spend are on the same dashboard.            -->
+                    <emit-metric name="TotalTokens" value="@{
+                        var body = context.Response.Body.As<JObject>(preserveContent: true);
+                        var usage = body?["usage"] as JObject;
+                        var inTok  = (int?)usage?["input_tokens"] ?? 0;
+                        var outTok = (int?)usage?["output_tokens"] ?? 0;
+                        return (double)(inTok + outTok);
+                    }" namespace="enterprise-ai-gateway">
+                        <dimension name="Team"       value="@((string)context.Variables["teamId"])" />
+                        <dimension name="CostCenter" value="@((string)context.Variables["costCenter"])" />
+                        <dimension name="Vendor"     value="anthropic" />
+                        <dimension name="Model"      value="@{ var b = context.Response.Body.As<JObject>(preserveContent: true); return (string)(b?["model"] ?? "unknown"); }" />
+                    </emit-metric>
+                </outbound>
+            
+                <on-error>
+                    <base />
+                </on-error>
+            </policies>
+        EOT
+    }
+
+[1m  # azurerm_api_management_api_policy.bedrock[0m will be created
+[0m  [32m+[0m[0m resource "azurerm_api_management_api_policy" "bedrock" {
+      [32m+[0m[0m api_management_name = "apim-aigw-shaleent-001"
+      [32m+[0m[0m api_name            = "bedrock"
+      [32m+[0m[0m id                  = (known after apply)
+      [32m+[0m[0m resource_group_name = "rg-aigw-demo"
+      [32m+[0m[0m xml_content         = <<-EOT
+            <!--
+              API-level policy: AWS Bedrock
+              Path: /bedrock/model/{modelId}/invoke
+              Backend: https://bedrock-runtime.{{aws-region}}.amazonaws.com
+            
+              Demonstrates:
+                - Scenario 3: AWS access key + secret stored as Key Vault-backed
+                  Named Values ({{bedrock-access-key}}, {{bedrock-secret-key}}).
+                  Callers never see AWS credentials.
+                - Scenario 4: OpenAI-shaped chat request accepted; policy converts
+                  it to Bedrock's Anthropic Messages schema.
+                - Scenario 5: Token usage emitted to the same App Insights namespace
+                  as Foundry and Anthropic.
+            
+              NOTE: AWS SigV4 signing is best done in a custom module or via a
+              sidecar. This policy shows the header-injection approach that works
+              when using AWS's IAM "bearer" temporary credentials or a pre-signed
+              proxy. For full SigV4 in-policy, deploy the sample at
+              https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/aws-bedrock
+            -->
+            <policies>
+                <inbound>
+                    <base />
+            
+                    <include-fragment fragment-id="fragment-content-safety" />
+            
+                    <set-backend-service base-url="https://bedrock-runtime.{{aws-region}}.amazonaws.com" />
+            
+                    <!-- SCENARIO 3: Strip caller creds; inject AWS bearer token from KV. -->
+                    <set-header name="Authorization" exists-action="override"><value>@("Bearer " + "{{bedrock-bearer-token}}")</value></set-header>
+                    <set-header name="api-key"       exists-action="delete" />
+            
+                    <!-- SCENARIO 4: Translate OpenAI-shape ΓåÆ Bedrock Anthropic Messages. -->
+                    <set-body>@{
+                        var body = context.Request.Body.As<JObject>(preserveContent: false);
+                        var maxTokens = (int?)body["max_tokens"] ?? 1024;
+                        var messages = (JArray)(body["messages"] ?? new JArray());
+                        string system = null;
+                        var mapped = new JArray();
+                        foreach (var m in messages) {
+                            var role = (string)m["role"];
+                            if (role == "system") { system = (string)m["content"]; continue; }
+                            mapped.Add(new JObject(
+                                new JProperty("role", role),
+                                new JProperty("content", m["content"])
+                            ));
+                        }
+                        var outBody = new JObject(
+                            new JProperty("anthropic_version", "bedrock-2023-05-31"),
+                            new JProperty("max_tokens", maxTokens),
+                            new JProperty("messages", mapped)
+                        );
+                        if (system != null) outBody["system"] = system;
+                        return outBody.ToString();
+                    }</set-body>
+            
+                    <!-- SCENARIO 2: Per-team RPM throttling. -->
+                    <rate-limit-by-key calls="120" renewal-period="60"
+                        counter-key="@("bedrock-" + (string)context.Variables["teamId"])"
+                        remaining-calls-header-name="x-ratelimit-remaining"
+                        retry-after-header-name="Retry-After" />
+                </inbound>
+            
+                <backend>
+                    <forward-request timeout="120" />
+                </backend>
+            
+                <outbound>
+                    <base />
+            
+                    <!-- SCENARIO 5: Emit token usage into unified namespace. -->
+                    <emit-metric name="TotalTokens" value="@{
+                        var body = context.Response.Body.As<JObject>(preserveContent: true);
+                        var usage = body?["usage"] as JObject;
+                        var inTok  = (int?)usage?["input_tokens"] ?? 0;
+                        var outTok = (int?)usage?["output_tokens"] ?? 0;
+                        return (double)(inTok + outTok);
+                    }" namespace="enterprise-ai-gateway">
+                        <dimension name="Team"       value="@((string)context.Variables["teamId"])" />
+                        <dimension name="CostCenter" value="@((string)context.Variables["costCenter"])" />
+                        <dimension name="Vendor"     value="bedrock" />
+                        <dimension name="Model"      value="@(context.Request.MatchedParameters.GetValueOrDefault("modelId","unknown"))" />
+                    </emit-metric>
+                </outbound>
+            
+                <on-error>
+                    <base />
+                </on-error>
+            </policies>
+        EOT
+    }
+
+[1m  # azurerm_api_management_named_value.anthropic_key[0m will be created
+[0m  [32m+[0m[0m resource "azurerm_api_management_named_value" "anthropic_key" {
+      [32m+[0m[0m api_management_name = "apim-aigw-shaleent-001"
+      [32m+[0m[0m display_name        = "anthropic-api-key"
+      [32m+[0m[0m id                  = (known after apply)
+      [32m+[0m[0m name                = "anthropic-api-key"
+      [32m+[0m[0m resource_group_name = "rg-aigw-demo"
+      [32m+[0m[0m secret              = true
+
+      [32m+[0m[0m value_from_key_vault {
+          [32m+[0m[0m secret_id = (known after apply)
+        }
+    }
+
+[1m  # azurerm_api_management_named_value.bedrock_token[0m will be created
+[0m  [32m+[0m[0m resource "azurerm_api_management_named_value" "bedrock_token" {
+      [32m+[0m[0m api_management_name = "apim-aigw-shaleent-001"
+      [32m+[0m[0m display_name        = "bedrock-bearer-token"
+      [32m+[0m[0m id                  = (known after apply)
+      [32m+[0m[0m name                = "bedrock-bearer-token"
+      [32m+[0m[0m resource_group_name = "rg-aigw-demo"
+      [32m+[0m[0m secret              = true
+
+      [32m+[0m[0m value_from_key_vault {
+          [32m+[0m[0m secret_id = (known after apply)
+        }
+    }
+
+[1m  # azurerm_api_management_policy.global[0m will be created
+[0m  [32m+[0m[0m resource "azurerm_api_management_policy" "global" {
+      [32m+[0m[0m api_management_id = "/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001"
+      [32m+[0m[0m id                = (known after apply)
+      [32m+[0m[0m xml_content       = <<-EOT
+            <!--
+              Global (All APIs) policy ΓÇö Enterprise AI Gateway
+              Applied at the "All APIs" scope. Runs BEFORE any API-specific policy.
+            
+              Governance layers enforced here (vendor-agnostic):
+                1. Private-only network posture (allow list + VNet)
+                2. Entra ID authentication and team extraction
+                3. User-access revocation (group membership required)
+                4. Centralized audit and chargeback logging
+            -->
+            <policies>
+                <inbound>
+                    <base />
+            
+                    <!-- ============================================================ -->
+                    <!-- SCENARIO 6: Private-only access                              -->
+                    <!-- Backstop the private endpoint. Reject any caller that is not -->
+                    <!-- on the corporate CIDR ranges. Real enforcement should         -->
+                    <!-- also rely on APIM ingress being VNet-injected with a private -->
+                    <!-- endpoint / no public IP.                                     -->
+                    <!-- ============================================================ -->
+                    <ip-filter action="allow">
+                        <address-range from="10.0.0.0" to="10.255.255.255" />
+                        <address-range from="172.16.0.0" to="172.31.255.255" />
+                        <address-range from="192.168.0.0" to="192.168.255.255" />
+                    </ip-filter>
+            
+                    <!-- ============================================================ -->
+                    <!-- SCENARIO 1: Entra ID authentication + access revocation      -->
+                    <!-- Validate the caller's Entra ID access token. Removing a user -->
+                    <!-- from the required group (or disabling their account)         -->
+                    <!-- instantly revokes access on the next token acquisition.      -->
+                    <!-- Group GUIDs must match the AIGW-Team-* security groups.      -->
+                    <!-- ============================================================ -->
+                    <validate-azure-ad-token
+                        tenant-id="{{entra-tenant-id}}"
+                        header-name="Authorization"
+                        failed-validation-httpcode="401"
+                        failed-validation-error-message="Unauthorized: valid Entra ID token required.">
+                        <client-application-ids>
+                            <application-id>{{aigw-client-app-id}}</application-id>
+                        </client-application-ids>
+                        <audiences>
+                            <audience>{{aigw-audience}}</audience>
+                        </audiences>
+                        <required-claims>
+                            <claim name="groups" match="any">
+                                <value>{{group-team-marketing}}</value>
+                                <value>{{group-team-engineering}}</value>
+                                <value>{{group-team-finance}}</value>
+                            </claim>
+                        </required-claims>
+                    </validate-azure-ad-token>
+            
+                    <!-- Derive team + user context from the validated token so every -->
+                    <!-- downstream policy (quotas, metrics, logs) can use them.      -->
+                    <set-variable name="userOid" value="@{
+                        var jwt = context.Request.Headers.GetValueOrDefault("Authorization","").Replace("Bearer ","").AsJwt();
+                        return jwt?.Claims.GetValueOrDefault("oid","unknown");
+                    }" />
+                    <set-variable name="userUpn" value="@{
+                        var jwt = context.Request.Headers.GetValueOrDefault("Authorization","").Replace("Bearer ","").AsJwt();
+                        return jwt?.Claims.GetValueOrDefault("preferred_username","unknown");
+                    }" />
+                    <set-variable name="teamId" value="@{
+                        var jwt = context.Request.Headers.GetValueOrDefault("Authorization","").Replace("Bearer ","").AsJwt();
+                        var groups = jwt?.Claims.GetValueOrDefault("groups","");
+                        if (groups.Contains("{{group-team-engineering}}")) return "engineering";
+                        if (groups.Contains("{{group-team-marketing}}"))   return "marketing";
+                        if (groups.Contains("{{group-team-finance}}"))     return "finance";
+                        return "unassigned";
+                    }" />
+                    <set-variable name="costCenter" value="@{
+                        switch ((string)context.Variables["teamId"]) {
+                            case "engineering": return "CC-1001";
+                            case "marketing":   return "CC-2002";
+                            case "finance":     return "CC-3003";
+                            default:            return "CC-0000";
+                        }
+                    }" />
+            
+                    <!-- Propagate context for downstream backends and logs. Strip any -->
+                    <!-- inbound copy first so callers can't spoof identity headers.   -->
+                    <set-header name="X-AIGW-Team"        exists-action="override"><value>@((string)context.Variables["teamId"])</value></set-header>
+                    <set-header name="X-AIGW-User"        exists-action="override"><value>@((string)context.Variables["userUpn"])</value></set-header>
+                    <set-header name="X-AIGW-CostCenter"  exists-action="override"><value>@((string)context.Variables["costCenter"])</value></set-header>
+                    <set-header name="X-AIGW-CorrelationId" exists-action="override"><value>@(Guid.NewGuid().ToString())</value></set-header>
+            
+                    <!-- ============================================================ -->
+                    <!-- SCENARIO 5: Centralized audit / chargeback logging           -->
+                    <!-- Reused fragment writes a structured record to App Insights   -->
+                    <!-- for every request (prompt tokens are added in <outbound>).   -->
+                    <!-- ============================================================ -->
+                    <include-fragment fragment-id="fragment-audit-log" />
+                </inbound>
+            
+                <backend>
+                    <base />
+                </backend>
+            
+                <outbound>
+                    <base />
+                    <!-- Never leak backend model/provider details to clients. -->
+                    <set-header name="Server" exists-action="delete" />
+                    <set-header name="x-ms-region" exists-action="delete" />
+                </outbound>
+            
+                <on-error>
+                    <base />
+                    <choose>
+                        <when condition="@(context.LastError.Source == "validate-azure-ad-token")">
+                            <return-response>
+                                <set-status code="401" reason="Unauthorized" />
+                                <set-header name="Content-Type" exists-action="override"><value>application/json</value></set-header>
+                                <set-body>{"error":"access_revoked","message":"Your Entra ID token is invalid, expired, or you are no longer a member of an authorized AI Gateway team."}</set-body>
+                            </return-response>
+                        </when>
+                        <when condition="@(context.LastError.Source == "ip-filter")">
+                            <return-response>
+                                <set-status code="403" reason="Forbidden" />
+                                <set-body>{"error":"private_only","message":"AI Gateway is accessible only from the corporate network."}</set-body>
+                            </return-response>
+                        </when>
+                    </choose>
+                </on-error>
+            </policies>
+        EOT
+    }
+
+[1m  # azurerm_api_management_policy_fragment.audit_log[0m will be created
+[0m  [32m+[0m[0m resource "azurerm_api_management_policy_fragment" "audit_log" {
+      [32m+[0m[0m api_management_id = "/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001"
+      [32m+[0m[0m format            = "xml"
+      [32m+[0m[0m id                = (known after apply)
+      [32m+[0m[0m name              = "fragment-audit-log"
+      [32m+[0m[0m value             = <<-EOT
+            <!--
+              Policy Fragment: fragment-audit-log
+              Purpose: Structured audit + chargeback record emitted to Application
+              Insights for every gateway call. Combine with azure-openai-emit-token-
+              metric (added in api-foundry.xml) for per-team, per-cost-center token
+              and $ reporting.
+            
+              Fields (all safe to store ΓÇö no prompt content):
+                correlationId, team, user, costCenter, apiName, operationId,
+                subscriptionId, clientIp, timestamp
+            -->
+            <fragment>
+                <log-to-eventhub logger-id="appinsights-logger" partition-id="0">@{
+                    return new JObject(
+                        new JProperty("timestamp",      DateTime.UtcNow.ToString("o")),
+                        new JProperty("correlationId",  context.Request.Headers.GetValueOrDefault("X-AIGW-CorrelationId","")),
+                        new JProperty("team",           (string)context.Variables["teamId"]),
+                        new JProperty("user",           (string)context.Variables["userUpn"]),
+                        new JProperty("userOid",        (string)context.Variables["userOid"]),
+                        new JProperty("costCenter",     (string)context.Variables["costCenter"]),
+                        new JProperty("apiName",        context.Api.Name),
+                        new JProperty("operationId",    context.Operation.Id),
+                        new JProperty("subscriptionId", context.Subscription?.Id ?? ""),
+                        new JProperty("clientIp",       context.Request.IpAddress)
+                    ).ToString();
+                }</log-to-eventhub>
+            </fragment>
+        EOT
+    }
+
+[1m  # azurerm_api_management_policy_fragment.auth_entra[0m will be created
+[0m  [32m+[0m[0m resource "azurerm_api_management_policy_fragment" "auth_entra" {
+      [32m+[0m[0m api_management_id = "/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-shaleent-001"
+      [32m+[0m[0m format            = "xml"
+      [32m+[0m[0m id                = (known after apply)
+      [32m+[0m[0m name              = "fragment-auth-entra"
+      [32m+[0m[0m value             = <<-EOT
+            <!--
+              Policy Fragment: fragment-auth-entra
+              Purpose: Optional stricter re-validation (e.g., enforce a specific team
+              group at the API scope). The GLOBAL policy already validates the token
+              and populates teamId/userUpn/costCenter. Use this fragment only when an
+              API must be restricted to a subset of teams.
+            
+              Usage inside an API policy:
+                <include-fragment fragment-id="fragment-auth-entra" />
+            -->
+            <fragment>
+                <choose>
+                    <when condition="@((string)context.Variables["teamId"] == "unassigned")">
+                        <return-response>
+                            <set-status code="403" reason="Forbidden" />
+                            <set-header name="Content-Type" exists-action="override"><value>application/json</value></set-header>
+                            <set-body>{"error":"no_team","message":"Caller is not a member of any AI Gateway team."}</set-body>
+                        </return-response>
+                    </when>
+                </choose>
+            </fragment>
+        EOT
+    }
+
+[1m  # azurerm_cognitive_deployment.gpt4o[0m will be created
+[0m  [32m+[0m[0m resource "azurerm_cognitive_deployment" "gpt4o" {
+      [32m+[0m[0m cognitive_account_id   = "/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.CognitiveServices/accounts/aoai-apim-aigw-shaleent-001"
+      [32m+[0m[0m id                     = (known after apply)
+      [32m+[0m[0m name                   = "gpt-4o"
+      [32m+[0m[0m rai_policy_name        = (known after apply)
+      [32m+[0m[0m version_upgrade_option = "OnceNewDefaultVersionAvailable"
+
+      [32m+[0m[0m model {
+          [32m+[0m[0m format  = "OpenAI"
+          [32m+[0m[0m name    = "gpt-4o"
+          [32m+[0m[0m version = "2024-11-20"
+        }
+
+      [32m+[0m[0m sku {
+          [32m+[0m[0m capacity = 50
+          [32m+[0m[0m name     = "GlobalStandard"
+        }
+    }
+
+[1m  # azurerm_key_vault.kv[0m will be updated in-place
+[0m  [33m~[0m[0m resource "azurerm_key_vault" "kv" {
+        id                              = "/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.KeyVault/vaults/kv-apimaigwshaleent00"
+        name                            = "kv-apimaigwshaleent00"
+      [33m~[0m[0m public_network_access_enabled   = false [33m->[0m[0m true
+        tags                            = {}
+        [90m# (13 unchanged attributes hidden)[0m[0m
+
+        [90m# (1 unchanged block hidden)[0m[0m
+    }
+
+[1m  # azurerm_key_vault_secret.anthropic_api_key[0m will be created
+[0m  [32m+[0m[0m resource "azurerm_key_vault_secret" "anthropic_api_key" {
+      [32m+[0m[0m id                      = (known after apply)
+      [32m+[0m[0m key_vault_id            = "/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.KeyVault/vaults/kv-apimaigwshaleent00"
+      [32m+[0m[0m name                    = "anthropic-api-key"
+      [32m+[0m[0m resource_id             = (known after apply)
+      [32m+[0m[0m resource_versionless_id = (known after apply)
+      [32m+[0m[0m value                   = (sensitive value)
+      [32m+[0m[0m value_wo                = (write-only attribute)
+      [32m+[0m[0m version                 = (known after apply)
+      [32m+[0m[0m versionless_id          = (known after apply)
+    }
+
+[1m  # azurerm_key_vault_secret.bedrock_bearer_token[0m will be created
+[0m  [32m+[0m[0m resource "azurerm_key_vault_secret" "bedrock_bearer_token" {
+      [32m+[0m[0m id                      = (known after apply)
+      [32m+[0m[0m key_vault_id            = "/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.KeyVault/vaults/kv-apimaigwshaleent00"
+      [32m+[0m[0m name                    = "bedrock-bearer-token"
+      [32m+[0m[0m resource_id             = (known after apply)
+      [32m+[0m[0m resource_versionless_id = (known after apply)
+      [32m+[0m[0m value                   = (sensitive value)
+      [32m+[0m[0m value_wo                = (write-only attribute)
+      [32m+[0m[0m version                 = (known after apply)
+      [32m+[0m[0m versionless_id          = (known after apply)
+    }
+
+[1mPlan:[0m [0m10 to add, 1 to change, 0 to destroy.
+[0m[1mazurerm_api_management_policy_fragment.auth_entra: Creating...[0m[0m
+[0m[1mazurerm_cognitive_deployment.gpt4o: Creating...[0m[0m
+[0m[1mazurerm_api_management_policy_fragment.audit_log: Creating...[0m[0m
+[0m[1mazurerm_key_vault.kv: Modifying... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.KeyVault/vaults/kv-apimaigwshaleent00][0m[0m
+[0m[1mazurerm_api_management_policy_fragment.audit_log: Still creating... [00m10s elapsed][0m[0m
+[0m[1mazurerm_cognitive_deployment.gpt4o: Still creating... [00m10s elapsed][0m[0m
+[0m[1mazurerm_api_management_policy_fragment.auth_entra: Still creating... [00m10s elapsed][0m[0m
+[0m[1mazurerm_key_vault.kv: Still modifying... [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-....KeyVault/vaults/kv-apimaigwshaleent00, 00m10s elapsed][0m[0m
+[0m[1mazurerm_key_vault.kv: Modifications complete after 10s [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.KeyVault/vaults/kv-apimaigwshaleent00][0m
+[0m[1mazurerm_key_vault_secret.bedrock_bearer_token: Creating...[0m[0m
+[0m[1mazurerm_key_vault_secret.anthropic_api_key: Creating...[0m[0m
+[0m[1mazurerm_cognitive_deployment.gpt4o: Creation complete after 13s [id=/subscriptions/09e7c1cb-53ca-4d05-bcf0-8881c42e680e/resourceGroups/rg-aigw-demo/providers/Microsoft.CognitiveServices/accounts/aoai-apim-aigw-shaleent-001/deployments/gpt-4o][0m
+Γò╖
+Γöé Error: checking for presence of existing Secret "anthropic-api-key" (Key Vault "https://kv-apimaigwshaleent00.vault.azure.net/"): keyvault.BaseClient#GetSecret: Failure responding to request: StatusCode=403 -- Original Error: autorest/azure: Service returned an error. Status=403 Code="Forbidden" Message="Public network access is disabled and request is not from a trusted service nor via an approved private link.\r\nCaller: appid=04b07795-8ddb-461a-bbee-02f9e1bf7b46;oid=190737b4-93a6-403d-8f71-f7d6b2cdfae9;iss=https://sts.windows.net/16b3c013-d300-468d-ac64-7eda0820b6d3/\r\nVault: kv-apimaigwshaleent00;location=eastus2" InnerError={"code":"ForbiddenByConnection"}
+Γöé 
+Γöé   with azurerm_key_vault_secret.anthropic_api_key,
+Γöé   on foundation.tf line 87, in resource "azurerm_key_vault_secret" "anthropic_api_key":
+Γöé   87: resource "azurerm_key_vault_secret" "anthropic_api_key" {
+Γöé 
+Γò╡
+Γò╖
+Γöé Error: checking for presence of existing Secret "bedrock-bearer-token" (Key Vault "https://kv-apimaigwshaleent00.vault.azure.net/"): keyvault.BaseClient#GetSecret: Failure responding to request: StatusCode=403 -- Original Error: autorest/azure: Service returned an error. Status=403 Code="Forbidden" Message="Public network access is disabled and request is not from a trusted service nor via an approved private link.\r\nCaller: appid=04b07795-8ddb-461a-bbee-02f9e1bf7b46;oid=190737b4-93a6-403d-8f71-f7d6b2cdfae9;iss=https://sts.windows.net/16b3c013-d300-468d-ac64-7eda0820b6d3/\r\nVault: kv-apimaigwshaleent00;location=eastus2" InnerError={"code":"ForbiddenByConnection"}
+Γöé 
+Γöé   with azurerm_key_vault_secret.bedrock_bearer_token,
+Γöé   on foundation.tf line 95, in resource "azurerm_key_vault_secret" "bedrock_bearer_token":
+Γöé   95: resource "azurerm_key_vault_secret" "bedrock_bearer_token" {
+Γöé 
+Γò╡
+Γò╖
+Γöé Error: creating Policy Fragment (Subscription: "09e7c1cb-53ca-4d05-bcf0-8881c42e680e"
+Γöé Resource Group Name: "rg-aigw-demo"
+Γöé Service Name: "apim-aigw-shaleent-001"
+Γöé Policy Fragment Name: "fragment-auth-entra"): polling after CreateOrUpdate: executing request: unexpected status 404 (404 Not Found) with error: ResourceNotFound: PolicyFragment not found.
+Γöé 
+Γöé   with azurerm_api_management_policy_fragment.auth_entra,
+Γöé   on fragments.tf line 1, in resource "azurerm_api_management_policy_fragment" "auth_entra":
+Γöé    1: resource "azurerm_api_management_policy_fragment" "auth_entra" {
+Γöé 
+Γò╡
+Γò╖
+Γöé Error: creating Policy Fragment (Subscription: "09e7c1cb-53ca-4d05-bcf0-8881c42e680e"
+Γöé Resource Group Name: "rg-aigw-demo"
+Γöé Service Name: "apim-aigw-shaleent-001"
+Γöé Policy Fragment Name: "fragment-audit-log"): polling after CreateOrUpdate: executing request: unexpected status 404 (404 Not Found) with error: ResourceNotFound: PolicyFragment not found.
+Γöé 
+Γöé   with azurerm_api_management_policy_fragment.audit_log,
+Γöé   on fragments.tf line 17, in resource "azurerm_api_management_policy_fragment" "audit_log":
+Γöé   17: resource "azurerm_api_management_policy_fragment" "audit_log" {
+Γöé 
+Γò╡

@@ -15,9 +15,9 @@ and applies every XML policy from [../policies](../policies) verbatim.
 | [named_values.tf](named_values.tf) | Plain + Key Vault-backed Named Values |
 | [backends.tf](backends.tf) | `foundry-backend`, `embeddings-backend`, `contentsafety-backend` |
 | [fragments.tf](fragments.tf) | 3 policy fragments (`file(...)` from `../policies`) |
-| [apis.tf](apis.tf) | 4 APIs: `foundry`, `anthropic`, `bedrock`, `vertex` |
+| [apis.tf](apis.tf) | 4 APIs plus explicit provider operations: `foundry`, `anthropic`, `bedrock`, `vertex` |
 | [policies.tf](policies.tf) | Global policy + per-API policies |
-| [products.tf](products.tf) | 3 Products, attaches all APIs, applies team quota policies |
+| [products.tf](products.tf) | 3 Products, team subscriptions, API attachments, and team quota policies |
 | [outputs.tf](outputs.tf) | Gateway URL, APIM principalId, App Insights ID |
 | [terraform.tfvars.example](terraform.tfvars.example) | Fill this in and rename to `terraform.tfvars` |
 

@@ -1,23 +1,25 @@
 locals {
-  fragment_ids = [
-    azurerm_api_management_policy_fragment.auth_entra.id,
-    azurerm_api_management_policy_fragment.content_safety.id,
-    azurerm_api_management_policy_fragment.audit_log.id,
-  ]
+  private_ip_filter_policy = <<-XML
+        <ip-filter action="allow">
+            <address-range from="10.0.0.0" to="10.255.255.255" />
+            <address-range from="172.16.0.0" to="172.31.255.255" />
+            <address-range from="192.168.0.0" to="192.168.255.255" />
+        </ip-filter>
+  XML
 
-  named_value_ids = concat(
-    [for nv in azurerm_api_management_named_value.plain : nv.id],
-    [azurerm_api_management_named_value.anthropic_key.id,
-    azurerm_api_management_named_value.bedrock_token.id],
+  global_policy_xml = replace(
+    file("${path.module}/../policies/global.xml"),
+    "<!-- {{private-ip-filter}} -->",
+    var.enable_private_ip_filter ? local.private_ip_filter_policy : ""
   )
 }
 
 resource "azurerm_api_management_policy" "global" {
   api_management_id = azurerm_api_management.apim.id
-  xml_content       = file("${path.module}/../policies/global.xml")
+  xml_content       = local.global_policy_xml
 
   depends_on = [
-    azurerm_api_management_policy_fragment.audit_log,
+    azurerm_api_management_logger.appi,
     azurerm_api_management_named_value.plain,
   ]
 }

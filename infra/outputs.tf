@@ -13,3 +13,7 @@ output "app_insights_id" {
 output "product_ids" {
   value = { for k, p in azurerm_api_management_product.team : k => p.product_id }
 }
+
+output "team_subscription_ids" {
+  value = { for k, s in azurerm_api_management_subscription.team : k => s.subscription_id }
+}

@@ -58,10 +58,3 @@ resource "azurerm_role_assignment" "apim_content_safety" {
   role_definition_name = "Cognitive Services User"
   principal_id         = azurerm_api_management.apim.identity[0].principal_id
 }
-
-# Access to Key Vault so Named Values can resolve secrets.
-resource "azurerm_role_assignment" "apim_kv" {
-  scope                = azurerm_key_vault.kv.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_api_management.apim.identity[0].principal_id
-}

@@ -112,6 +112,15 @@ az ad app update --id $appId --identifier-uris "api://$appId"
 Write-Host "Save these: appId=$appId, groups: $g1 / $g2 / $g3"
 ```
 
+In **Entra admin center → App registrations → Enterprise AI Gateway → Expose an API**:
+
+1. Add delegated scope `access_as_user` for admins and users.
+2. Under **Authorized client applications**, add Azure CLI client ID
+  `04b07795-8ddb-461a-bbee-02f9e1bf7b46` and select `access_as_user`.
+
+This pre-authorizes the CLI used by the demo. Use a dedicated client app instead of
+Azure CLI for production callers.
+
 ### Step 4 — Fill in `terraform.tfvars`
 
 ```powershell
@@ -126,10 +135,12 @@ Key values:
 apim_name              = "apim-aigw-<yourname>-001"
 entra_tenant_id        = "<your-tenant-id>"
 aigw_client_app_id     = "<appId from step 3>"
+aigw_caller_client_app_id = "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
 aigw_audience          = "api://<appId>"
 group_team_marketing   = "<g1>"
 group_team_engineering = "<g2>"
 group_team_finance     = "<g3>"
+enable_private_ip_filter = false             # controlled public demo only
 anthropic_api_key      = "placeholder"       # replace with real key when ready
 bedrock_bearer_token   = "placeholder"
 ```
@@ -161,12 +172,17 @@ You should see:
 ### Step 7 — Smoke test with your own token
 
 ```powershell
-$appId    = "<the appId>"
-$gateway  = "https://apim-aigw-<yourname>-001.azure-api.net"
-$token    = az account get-access-token --resource "api://$appId" --query accessToken -o tsv
+$appId   = "<the appId>"
+$tenant  = "<tenant-id>"
+$gateway = "https://apim-aigw-<yourname>-001.azure-api.net"
 
-# Marketing subscription key from APIM > Subscriptions > team-marketing
-$subKey   = "<subscription key>"
+# First run requires an interactive sign-in for the delegated scope.
+az login --tenant $tenant --scope "api://$appId/access_as_user"
+$token = az account get-access-token --scope "api://$appId/access_as_user" --query accessToken -o tsv
+
+$subscriptionId = az account show --query id -o tsv
+$secretsUrl = "https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/rg-aigw-demo/providers/Microsoft.ApiManagement/service/apim-aigw-<yourname>-001/subscriptions/team-marketing/listSecrets?api-version=2024-05-01"
+$subKey = az rest --method post --url $secretsUrl --query primaryKey -o tsv
 
 curl -Method POST "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview" `
   -Headers @{
@@ -213,6 +229,9 @@ az ad group delete --group "AIGW-Team-Marketing"
 az ad group delete --group "AIGW-Team-Engineering"
 az ad group delete --group "AIGW-Team-Finance"
 ```
+
+For a public demo, set `enable_private_ip_filter = false` only for the demo window.
+Restore it to `true` and run `terraform apply` afterward.
 
 ---
 

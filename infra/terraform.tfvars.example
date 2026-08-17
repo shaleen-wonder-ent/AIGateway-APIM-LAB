@@ -2,9 +2,13 @@
 apim_name              = "apim-aigw-demo"
 entra_tenant_id        = "00000000-0000-0000-0000-000000000000"
 aigw_client_app_id     = "00000000-0000-0000-0000-000000000000"
+aigw_caller_client_app_id = "00000000-0000-0000-0000-000000000000"
 group_team_marketing   = "00000000-0000-0000-0000-000000000000"
 group_team_engineering = "00000000-0000-0000-0000-000000000000"
 group_team_finance     = "00000000-0000-0000-0000-000000000000"
+
+# Keep true for private deployments. Set false only for controlled public demos.
+enable_private_ip_filter = true
 
 # Prefer TF_VAR_anthropic_api_key / TF_VAR_bedrock_bearer_token env vars
 # in real use so secrets don't land on disk.
