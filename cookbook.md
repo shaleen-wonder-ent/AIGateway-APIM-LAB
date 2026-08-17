@@ -445,6 +445,23 @@ try {
 }
 ```
 
+**Second control (identity):** send an invalid Entra token — the gateway rejects it
+before the model is ever contacted. This is usually the most convincing moment.
+
+```powershell
+$badTok = @{ Authorization = "Bearer not.a.real.token"; "Ocp-Apim-Subscription-Key" = $key; "Content-Type" = "application/json" }
+try {
+  Invoke-RestMethod -Method Post `
+    -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" `
+    -Headers $badTok -Body $body
+} catch {
+  "Blocked as expected: HTTP $([int]$_.Exception.Response.StatusCode)"
+}
+```
+
+> **Presenter tip:** the Entra token is short-lived (~60–90 min). Re-run the Part 4.3
+> setup block to refresh `$token` right before you present, or it may expire mid-demo.
+
 ---
 
 ### Demo 2 — Access revocation via team membership
