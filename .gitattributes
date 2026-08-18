@@ -1,0 +1,11 @@
+# Keep Terraform plan/state and logs out of GitHub language statistics
+infra/tfplan*      binary linguist-generated
+*.tfplan           binary linguist-generated
+*.tfstate          linguist-generated
+*.tfstate.*        linguist-generated
+*.log              linguist-generated
+
+# Ensure the real content is classified correctly
+*.tf    linguist-language=HCL
+*.xml   linguist-language=XML
+*.http  linguist-language=HTTP
