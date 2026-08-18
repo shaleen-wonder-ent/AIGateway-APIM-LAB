@@ -243,7 +243,50 @@ Each team is an APIM **Product** with its own limits, defined in
 > Marketing is deliberately set very low (1,000 TPM) so Demo 3 trips the `429` on the
 > **second** call. Engineering stays higher so it remains the "still works" contrast.
 
-### 3.4 The policies that enforce governance
+### 3.4 How Entra groups map to APIM products
+
+A common confusion: there are three Entra groups (`AIGW-Team-*`) and three APIM products
+(`Team - *`), so how are they linked? **APIM does not link them automatically.** The
+matching names are just convention — the real binding is a **GUID comparison written in
+each product's policy**. The group's object ID flows through three hops:
+
+```mermaid
+flowchart LR
+    G["Entra group<br/>AIGW-Team-Marketing<br/>GUID 0029aa0d…"]
+    V["terraform.tfvars<br/>group_team_marketing"]
+    N["APIM named value<br/>group-team-marketing<br/>= {{group-team-marketing}}"]
+    P["Product policy<br/>product-team-marketing.xml<br/>groups.Contains({{group-team-marketing}})"]
+    PROD["APIM product + subscription<br/>team-marketing"]
+    KEY["Subscription key<br/>held by the caller"]
+
+    G -->|paste GUID| V --> N --> P
+    PROD -->|policy applied to| P
+    KEY -->|selects plan| PROD
+```
+
+**The two mappings that must both agree:**
+
+| Mapping | Made by | Where |
+|---|---|---|
+| Caller → **Product** (which plan) | the **subscription key** they send | [products.tf](infra/products.tf) |
+| Product → **Entra group** (who's allowed) | the **GUID check** in the product policy | [product-team-marketing.xml](policies/product-team-marketing.xml) |
+
+**The GUID's journey (Marketing example):**
+
+1. Entra group `AIGW-Team-Marketing` has object ID `0029aa0d-…`.
+2. You paste it into [terraform.tfvars](infra/terraform.tfvars) as `group_team_marketing`
+   (declared in [variables.tf](infra/variables.tf)).
+3. [named_values.tf](infra/named_values.tf) publishes it as the APIM named value
+   `group-team-marketing`, usable in policy as `{{group-team-marketing}}`.
+4. [product-team-marketing.xml](policies/product-team-marketing.xml) is where the bind
+   actually happens — it checks the token's `groups` claim contains that GUID:
+   `groups.Contains("{{group-team-marketing}}")` → allow, else `403 wrong_team`.
+
+> If you deleted that one line in the product policy, the product would no longer be tied
+> to the group. The **names** `team-marketing` and `AIGW-Team-Marketing` mean nothing to
+> APIM — only the **GUID comparison** is the mapping.
+
+### 3.5 The policies that enforce governance
 
 | Policy | Scope | What it does |
 |---|---|---|
@@ -251,7 +294,7 @@ Each team is an APIM **Product** with its own limits, defined in
 | [fragment-content-safety.xml](policies/fragment-content-safety.xml) | Shared | Content safety + jailbreak detection, reused by every API |
 | [api-foundry.xml](policies/api-foundry.xml) | Foundry API | Strips keys, managed-identity auth, token limits, cache, metrics |
 
-### 3.5 The request path (what happens on every call)
+### 3.6 The request path (what happens on every call)
 
 ```text
 You (PowerShell)
@@ -667,6 +710,49 @@ $r = Invoke-WebRequest -Method Post -Uri "$gateway/foundry/openai/deployments/gp
 
 **Reference:** [product-team-marketing.xml](policies/product-team-marketing.xml) vs
 [product-team-engineering.xml](policies/product-team-engineering.xml).
+
+**Deep dive: there are actually TWO token limits — and they do different jobs.**
+
+You'll notice a token limit in **both** the product policy and the API policy. They are
+not duplicates; they are separate buckets with separate purposes.
+
+```xml
+<!-- Product scope (product-team-marketing.xml) — the TEAM'S BUDGET -->
+<azure-openai-token-limit tokens-per-minute="1000"
+    counter-key="@("marketing-tpm")" estimate-prompt-tokens="false" ... />
+
+<!-- API scope (api-foundry.xml) — a BACKEND GUARDRAIL -->
+<azure-openai-token-limit tokens-per-minute="500000"
+    counter-key="@((string)context.Variables["teamId"])" estimate-prompt-tokens="true" ... />
+```
+
+| | Product limit | API limit |
+|---|---|---|
+| Purpose | The team's **plan / budget** | A **backend safety ceiling** |
+| Value | 1,000 TPM (tight) | 500,000 TPM (loose backstop) |
+| `counter-key` | `"marketing-tpm"` (fixed) | `teamId` (per team) |
+| Applies when | Only the **Marketing** subscription | **Every** Foundry call, any team |
+| Trips first? | Yes (the strict one) | Almost never |
+
+The **`counter-key` is the key idea** — it names the bucket tokens are added to. The
+product uses a **fixed** key, so *all* Marketing users share **one** 1,000-token bucket
+(the team's allocation). The API uses a **per-team** key, so each team gets its own
+500,000 guardrail that protects the shared GPT-4o deployment from any single team.
+
+**Worked example — a Marketing user sends one ~2,000-token essay:**
+
+1. Global policy validates identity, sets `teamId` (initially by group).
+2. Product policy confirms Marketing membership and **overrides `teamId = "marketing"`**.
+3. Both limits count the request:
+   - `marketing-tpm` bucket: 0 → ~2,000 → **over 1,000**, so the **next** call gets `429`.
+   - `marketing` (API) bucket: 0 → ~2,000 — nowhere near 500,000, so it stays open.
+4. The **strict product limit wins** and throttles the team; the API guardrail never fires.
+
+> One line: **the Product limit is the team's budget (small, per plan); the API limit is
+> a backend guardrail (large, protects the shared model). Two buckets, two jobs — the
+> strict one trips first.** This is also why `teamId` is set authoritatively in the
+> product policy: it makes the API bucket, the metrics, and the `429` message all agree
+> on the real team.
 
 ---
 
