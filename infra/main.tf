@@ -45,6 +45,22 @@ resource "azurerm_api_management_logger" "appi" {
   }
 }
 
+# Without a diagnostic the logger emits nothing; this turns on request telemetry
+# and the audit <trace> (verbosity=information) used by the chargeback demo.
+resource "azurerm_api_management_diagnostic" "appi" {
+  identifier               = "applicationinsights"
+  resource_group_name      = azurerm_resource_group.rg.name
+  api_management_name      = azurerm_api_management.apim.name
+  api_management_logger_id = azurerm_api_management_logger.appi.id
+
+  sampling_percentage       = 100.0
+  always_log_errors         = true
+  log_client_ip             = true
+  verbosity                 = "information"
+  http_correlation_protocol = "W3C"
+  operation_name_format     = "Name"
+}
+
 # APIM MI needs Cognitive Services User on Foundry + Content Safety
 # so authentication-managed-identity and llm-content-safety work.
 resource "azurerm_role_assignment" "apim_foundry" {

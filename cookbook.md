@@ -885,24 +885,49 @@ what the models' own filters cannot:
 
 **Goal:** show finance-grade visibility into who spent what.
 
-**What you show:** Application Insights queries that attribute token usage to teams and
-cost centers, and an audit of denied requests.
+**What you show:** Application Insights queries that attribute activity to teams and cost
+centers, and an audit of denied requests.
+
+**Prerequisite (already deployed):** telemetry flows only because the APIM
+**Application Insights diagnostic** is enabled (`azurerm_api_management_diagnostic` in
+[infra/main.tf](infra/main.tf)). Without it, every table is empty.
 
 **Steps**
 
-1. Generate some traffic first (run Demo 1 a few times so metrics exist).
-2. In the Azure portal, open Application Insights
-   `appi-apim-aigw-shaleent-001` → **Logs**.
-3. Paste queries from [demo/kql-queries.md](demo/kql-queries.md), for example
-   **tokens per team** and **chargeback per cost center**.
+1. Generate mixed traffic first — run Demo 1 with the **Marketing** key and again with the
+   **Engineering** key (a few calls each) so there's per-team data.
+2. Wait ~2–5 minutes for ingestion.
+3. In the Azure portal, open Application Insights **`appi-apim-aigw-shaleent-001`** →
+   **Logs** (not the Log Analytics workspace — see note below).
+4. Paste queries from [demo/kql-queries.md](demo/kql-queries.md). Start with **Query 1**
+   (activity & chargeback by team) — it's the reliable one.
+
+**Query 1 result looks like:**
+
+```text
+Team          CostCenter   Requests
+engineering   CC-1001      2
+marketing     CC-2002      2
+```
 
 **What to say**
 
-> "Because the gateway tags every call with Team and Cost Center, finance can attribute
-> spend precisely and even convert tokens to dollars. The same log stream shows who was
-> denied and why, for audit."
+> "Every call is tagged with Team and Cost Center from the caller's identity and
+> subscription. Finance can attribute activity — and, with the token metric, spend — to
+> each team precisely. The same log stream shows who was denied and why, for audit."
 
-> Metrics can take a few minutes to appear after traffic.
+**Two gotchas worth knowing (both handled in the query file):**
+
+- **Table names depend on where you run.** From **App Insights → Logs**, use the classic
+  names (`traces`, `requests`, `customMetrics`). From the **Log Analytics workspace**, they
+  are `AppTraces`, `AppRequests`, `AppMetrics` (and `TimeGenerated` not `timestamp`).
+  Querying `customMetrics` in the workspace gives *"failed to resolve table"*.
+- **Token metric dimensions.** Per-team **token totals** come from the `TotalTokens` custom
+  metric; if the dimensional split isn't in Logs, view it in **Metrics explorer** (App
+  Insights → Metrics → `TotalTokens`, split by `Team`). The trace-based Query 1 is the
+  dependable chargeback view for a live demo.
+
+> Metrics/traces take a few minutes to appear after traffic.
 
 ---
 

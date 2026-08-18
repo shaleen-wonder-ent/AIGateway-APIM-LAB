@@ -58,11 +58,15 @@
             return jwt?.Claims.GetValueOrDefault("preferred_username","unknown");
         }" />
         <set-variable name="teamId" value="@{
+            // The subscription's product IS the team (e.g. "team-marketing"); it is known
+            // at inbound, so prefer it. Fall back to the token's group for edge cases.
+            var pid = context.Product?.Id;
+            if (!string.IsNullOrEmpty(pid) && pid.StartsWith("team-")) { return pid.Substring(5); }
             var jwt = context.Request.Headers.GetValueOrDefault("Authorization","").Replace("Bearer ","").AsJwt();
             var groups = jwt?.Claims.GetValueOrDefault("groups","");
-            if (groups.Contains("{{group-team-engineering}}")) { return "engineering"; }
-            if (groups.Contains("{{group-team-marketing}}"))   { return "marketing"; }
-            if (groups.Contains("{{group-team-finance}}"))     { return "finance"; }
+            if (groups != null && groups.Contains("{{group-team-engineering}}")) { return "engineering"; }
+            if (groups != null && groups.Contains("{{group-team-marketing}}"))   { return "marketing"; }
+            if (groups != null && groups.Contains("{{group-team-finance}}"))     { return "finance"; }
             return "unassigned";
         }" />
         <set-variable name="costCenter" value="@{
