@@ -4,6 +4,14 @@ A complete, beginner-friendly guide to understanding and running the demos in th
 repository. If you have never worked with APIs, Azure API Management (APIM), or AI
 gateways, read Part 1 first. If you just want to run the demos, jump to Part 4.
 
+| | |
+|---|---|
+| **Purpose** | Understand and present the Enterprise AI Gateway on Azure API Management. |
+| **Audience** | Presenters and engineers, including those new to APIs, APIM, and AI gateways. |
+| **Environment** | Resource group `rg-aigw-demo`, subscription `shaleent-MCAPS-Hybrid`, region East US 2. |
+| **Prerequisites** | Azure CLI, PowerShell 7+, and access to the subscription above. |
+| **Status** | All six demos validated end-to-end against the live environment. |
+
 ---
 
 ## Table of contents
@@ -139,8 +147,8 @@ flowchart TB
                 AV["vertex"]
             end
             subgraph PRODUCTS["Products = team plans"]
-                PM["Marketing<br/>50K TPM"]
-                PE["Engineering<br/>500K TPM"]
+                PM["Marketing<br/>1K TPM"]
+                PE["Engineering<br/>50K TPM"]
                 PF["Finance<br/>20K TPM"]
             end
             subgraph SUBS["Subscriptions (keys)"]
@@ -312,7 +320,7 @@ api-foundry.xml    → content safety → delete caller keys
   ▼
 Foundry gpt-4o     → generates the answer
   ▼
-APIM               → emit token metrics → return response
+APIM               → emit token metrics + usage trace → return response
 ```
 
 ---
@@ -494,7 +502,8 @@ The `$headers.Keys` output is your strongest moment: it lists `Authorization`,
 `Ocp-Apim-Subscription-Key`, and `Content-Type` — **no `api-key`**. Point at what is
 missing.
 
-Optional power move — prove the gateway strips a key even if a caller sneaks one in:
+Optional — demonstrate that the gateway strips a caller-supplied key. Even if a client
+sends its own `api-key`, the gateway ignores it and uses managed identity:
 
 ```powershell
 $sneaky = $headers.Clone(); $sneaky["api-key"] = "sk-fake-model-key-123"
@@ -916,7 +925,7 @@ marketing     CC-2002      2
 > subscription. Finance can attribute activity — and, with the token metric, spend — to
 > each team precisely. The same log stream shows who was denied and why, for audit."
 
-**Two gotchas worth knowing (both handled in the query file):**
+**Two important notes (both handled in the query file):**
 
 - **Table names depend on where you run.** From **App Insights → Logs**, use the classic
   names (`traces`, `requests`, `customMetrics`). From the **Log Analytics workspace**, they
@@ -988,6 +997,8 @@ marketing     CC-2002      2
 | `429 Token Limit Exceeded` | Team quota reached | Expected in Demo 3; wait for the per-minute reset or use Engineering tier |
 | `consent_required` on `az login` | CLI not yet authorized for the scope | Run `az login --tenant <tenant> --scope "api://<appId>/access_as_user"` |
 | No data in KQL | Metrics not ingested yet | Generate traffic, wait a few minutes, re-run the query |
+| `customMetrics`: *failed to resolve table* | Querying the Log Analytics workspace with classic names | Run from **App Insights → Logs**, or use workspace names (`AppTraces`, `AppRequests`, `AppMetrics`) |
+| Demo 5 Query 4/5 empty | APIM token metrics go to Metrics explorer, not the `customMetrics` table | Use the trace-based Query 4 in [demo/kql-queries.md](demo/kql-queries.md) |
 
 ---
 
