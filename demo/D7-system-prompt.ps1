@@ -23,6 +23,8 @@ function Ask($label, $user) {
   # The client sends ONLY a user message - no system prompt of its own.
   $b = @{ messages = @(@{ role = "user"; content = $user }); max_tokens = 90 } | ConvertTo-Json -Depth 6
   try {
+    # Show exactly what the CLIENT sends - note: only a 'user' message, no 'system'.
+    ($b | ConvertFrom-Json).messages | ForEach-Object { Write-Host "  client sends -> $($_.role): $($_.content)" -ForegroundColor DarkGray }
     $r = Invoke-RestMethod -Method Post -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" -Headers $headers -Body $b
     Write-Host $label -ForegroundColor Yellow
     Write-Host "  $($r.choices[0].message.content)" -ForegroundColor Cyan
