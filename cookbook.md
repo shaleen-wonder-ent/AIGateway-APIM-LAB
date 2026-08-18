@@ -421,6 +421,7 @@ directly for a live demo, or follow the inline steps to explain the mechanics.
 | 5 — Chargeback | [demo/D5-chargeback.ps1](demo/D5-chargeback.ps1) (this doc uses the portal view) |
 | 6 — Multi-vendor | [demo/D6-anthropic.ps1](demo/D6-anthropic.ps1) |
 | 7 — System-prompt injection | [demo/D7-system-prompt.ps1](demo/D7-system-prompt.ps1) |
+| 8 — Restore private-only | [demo/D8-restore.ps1](demo/D8-restore.ps1) |
 
 > Each script is standalone: `cd demo` then `.\D1-keyless-access.ps1`. Refresh happens
 > inside the script, so there are no stale-token `401`s.
@@ -1174,6 +1175,9 @@ The client sends ONLY a user message - no system prompt of its own.
 ### Demo 8 — Restore private-only posture
 
 **Goal:** return the environment to its secure default after a laptop demo.
+
+**Run:** [`demo/D8-restore.ps1`](demo/D8-restore.ps1) (flips the flag and applies), or do it
+manually:
 
 **Steps**
 
