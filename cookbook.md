@@ -718,7 +718,17 @@ $engHeaders = @{ Authorization = "Bearer $token"; "Ocp-Apim-Subscription-Key" = 
 $uniq = [guid]::NewGuid().ToString()
 $body = @{ messages = @(@{ role = "user"; content = "One sentence on AI governance. id ${uniq}" }); max_tokens = 30 } | ConvertTo-Json -Depth 10
 $r = Invoke-WebRequest -Method Post -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" -Headers $engHeaders -Body $body
-"Engineering: HTTP $([int]$r.StatusCode)  team-remaining=$($r.Headers['x-team-tokens-remaining'])"
+$answer = ($r.Content | ConvertFrom-Json).choices[0].message.content
+Write-Host "Engineering: HTTP $([int]$r.StatusCode)  team-remaining=$($r.Headers['x-team-tokens-remaining'])" -ForegroundColor Green
+Write-Host "   Model says: $answer" -ForegroundColor Cyan
+```
+
+Engineering answers normally (in cyan) while Marketing is throttled — the visible
+contrast that sells the per-team story:
+
+```text
+Engineering: HTTP 200  team-remaining=49970
+   Model says: AI governance ensures responsible, ethical, and transparent use of AI...
 ```
 
 **What to say**
