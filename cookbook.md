@@ -557,6 +557,30 @@ Invoke-RestMethod -Method Post -Uri "$gateway/foundry/openai/deployments/gpt-4o/
 > "The user authenticated to the gateway; the gateway authenticated to the model. Those
 > are two separate trust relationships. No model key ever touches the client."
 
+**Why it's *truly* keyless — the model resource has no key.** Key authentication is
+**disabled on the Azure OpenAI resource itself**, so there is no API key to leak, even for
+an admin. The Foundry portal shows this as *"API key authentication is disabled."*
+
+```hcl
+# infra/foundation.tf — Azure OpenAI (Foundry)
+resource "azurerm_cognitive_account" "foundry" {
+  kind               = "OpenAI"
+  local_auth_enabled = false   # disables API-key auth; Microsoft Entra (RBAC) only
+}
+
+# infra/main.tf — the gateway's managed identity gets access via a role, not a key
+resource "azurerm_role_assignment" "apim_foundry" {
+  scope                = azurerm_cognitive_account.foundry.id
+  role_definition_name = "Cognitive Services User"
+  principal_id         = azurerm_api_management.apim.identity[0].principal_id
+}
+```
+
+The only way in is a Microsoft Entra token with the right role — exactly how APIM's managed
+identity connects. For external vendors (Demo 6) there *is* a key, but the gateway stores
+and injects it so the caller never holds it. Two flavours of one principle: **callers never
+hold model credentials.**
+
 **Likely customer question: "The caller still holds an APIM subscription key — isn't
 that just as risky as holding the model's API key?"**
 
