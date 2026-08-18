@@ -3,7 +3,7 @@
   Applied to APIM Product "team-marketing" which groups every AI API.
   Assign the Marketing security group's subscription to this product.
 
-  Tier: 50,000 TPM / 500 requests-per-minute / 5M tokens-per-day budget.
+  Tier: 5,000 TPM / 50 requests-per-minute / 500K tokens-per-day budget (demo-scaled).
 -->
 <policies>
     <inbound>
@@ -27,21 +27,23 @@
         </choose>
 
         <!-- SCENARIO 2: Per-minute token cap (Foundry / OpenAI-shaped). -->
+        <!-- Counts real prompt+completion tokens so the demo trips quickly; -->
+        <!-- distinct header so the team's remaining budget is visible.       -->
         <azure-openai-token-limit
-            tokens-per-minute="50000"
+            tokens-per-minute="5000"
             counter-key="@("marketing-tpm")"
-            estimate-prompt-tokens="true"
-            tokens-consumed-header-name="x-tokens-consumed"
-            remaining-tokens-header-name="x-tokens-remaining" />
+            estimate-prompt-tokens="false"
+            tokens-consumed-header-name="x-team-tokens-consumed"
+            remaining-tokens-header-name="x-team-tokens-remaining" />
 
         <!-- Request-rate cap for vendor APIs (Anthropic/Bedrock/Vertex). -->
-        <rate-limit-by-key calls="500" renewal-period="60"
+        <rate-limit-by-key calls="50" renewal-period="60"
             counter-key="@("marketing-rpm")"
             remaining-calls-header-name="x-ratelimit-remaining"
             retry-after-header-name="Retry-After" />
 
         <!-- Daily token budget — resets at midnight UTC. -->
-        <quota-by-key calls="5000000" renewal-period="86400"
+        <quota-by-key calls="500000" renewal-period="86400"
             counter-key="@("marketing-daily")" />
     </inbound>
     <backend><base /></backend>

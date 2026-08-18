@@ -236,9 +236,11 @@ Each team is an APIM **Product** with its own limits, defined in
 
 | Team | Tokens/min | Requests/min | Tokens/day | Policy file |
 |---|---|---|---|---|
-| Marketing | 50,000 | 500 | 5,000,000 | [product-team-marketing.xml](policies/product-team-marketing.xml) |
-| Engineering | 500,000 | 5,000 | 50,000,000 | [product-team-engineering.xml](policies/product-team-engineering.xml) |
+| Marketing | 5,000 | 50 | 500,000 | [product-team-marketing.xml](policies/product-team-marketing.xml) |
+| Engineering | 50,000 | 500 | 5,000,000 | [product-team-engineering.xml](policies/product-team-engineering.xml) |
 | Finance | 20,000 | 200 | 2,000,000 | [product-team-finance.xml](policies/product-team-finance.xml) |
+
+> Marketing and Engineering are demo-scaled to 1/10 so Demo 3 trips the `429` quickly.
 
 ### 3.4 The policies that enforce governance
 
@@ -597,8 +599,9 @@ from Part 2: membership change revokes access on the next token.
 
 **Goal:** show that each team has enforced token/request limits.
 
-**What you show:** the limits are defined per product; a large burst against a low tier
-eventually returns `429 Token Limit Exceeded`.
+**What you show:** the limits are defined per product; a burst of **unique** requests
+against a low tier drives the team's remaining budget to zero and returns
+`429 Token Limit Exceeded`.
 
 **Steps**
 
@@ -609,29 +612,56 @@ $headers = @{
   "Ocp-Apim-Subscription-Key" = $key
   "Content-Type"              = "application/json"
 }
-$big = @{
-  messages = @(@{ role = "user"; content = "Write a very long, detailed 2000-word essay on cloud governance." })
-  max_tokens = 4000
-} | ConvertTo-Json -Depth 10
 
-# Fire several large requests; watch the remaining-tokens header shrink, then 429.
-1..8 | ForEach-Object {
+# Fire UNIQUE prompts (so the semantic cache can't serve repeats and real tokens
+# are consumed). Stop as soon as the team quota returns 429.
+$hit = $false
+for ($i = 1; $i -le 15 -and -not $hit; $i++) {
+  $uniq = [guid]::NewGuid().ToString()
+  $big = @{
+    messages = @(@{ role = "user"; content = "Write a detailed 1800-word essay on cloud governance. Unique request id ${uniq}." })
+    max_tokens = 2000
+  } | ConvertTo-Json -Depth 10
   try {
     $r = Invoke-WebRequest -Method Post `
       -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" `
       -Headers $headers -Body $big
-    "Call $_`: HTTP $([int]$r.StatusCode)  remaining=$($r.Headers['x-tokens-remaining'])"
+    "Call $i`: HTTP 200  team-remaining=$($r.Headers['x-team-tokens-remaining'])"
   } catch {
-    "Call $_`: HTTP $([int]$_.Exception.Response.StatusCode)  (limit hit)"
+    $code = [int]$_.Exception.Response.StatusCode
+    if ($code -eq 429) { $hit = $true; "Call $i`: HTTP 429  TOKEN LIMIT EXCEEDED — team quota enforced" }
+    else { "Call $i`: HTTP $code" }
   }
 }
 ```
 
+Watch `team-remaining` fall toward 0 and then a `429`. Because the cap is a **per-minute
+sliding window**, the remaining bounces (older tokens age out and replenish it) — that's
+normal; the `429` still lands once the window saturates.
+
+**Two things make this demo work (and why the naive version fails):**
+
+- **Unique prompts** — identical prompts get served from the **semantic cache**, so no
+  tokens are billed and the quota never moves. The `Unique request id` defeats the cache.
+- **Real-token counting** — the Marketing/Engineering caps use `estimate-prompt-tokens="false"`
+  so actual prompt+completion tokens count against the budget, not a tiny estimate.
+
+**Then show the contrast — Engineering (higher tier) still works:**
+
+```powershell
+$engKey = Get-TeamKey "team-engineering"
+$engHeaders = @{ Authorization = "Bearer $token"; "Ocp-Apim-Subscription-Key" = $engKey; "Content-Type" = "application/json" }
+$uniq = [guid]::NewGuid().ToString()
+$body = @{ messages = @(@{ role = "user"; content = "One sentence on AI governance. id ${uniq}" }); max_tokens = 30 } | ConvertTo-Json -Depth 10
+$r = Invoke-WebRequest -Method Post -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" -Headers $engHeaders -Body $body
+"Engineering: HTTP $([int]$r.StatusCode)  team-remaining=$($r.Headers['x-team-tokens-remaining'])"
+```
+
 **What to say**
 
-> "Marketing is capped at 50,000 tokens per minute; Engineering at 500,000. When a team
-> exceeds its allocation, the gateway returns 429 and protects both the budget and the
-> shared backend. Compare the Marketing and Engineering tiers in the policy files."
+> "Marketing is capped at 5,000 tokens per minute; Engineering at 50,000. Marketing hits
+> 429 and is throttled, while Engineering — a higher tier — keeps working. Same gateway,
+> different team budgets. This protects both the spend and the shared backend."
 
 **Reference:** [product-team-marketing.xml](policies/product-team-marketing.xml) vs
 [product-team-engineering.xml](policies/product-team-engineering.xml).
