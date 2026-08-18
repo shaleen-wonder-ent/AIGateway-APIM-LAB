@@ -658,7 +658,7 @@ $headers = @{
 }
 
 # Fire UNIQUE prompts (so the semantic cache can't serve repeats and real tokens
-# are consumed). Stop as soon as the team quota returns 429.
+# are consumed). Show a snippet of the model's answer in colour, then stop on 429.
 $hit = $false
 for ($i = 1; $i -le 15 -and -not $hit; $i++) {
   $uniq = [guid]::NewGuid().ToString()
@@ -670,13 +670,32 @@ for ($i = 1; $i -le 15 -and -not $hit; $i++) {
     $r = Invoke-WebRequest -Method Post `
       -Uri "$gateway/foundry/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" `
       -Headers $headers -Body $big
-    "Call $i`: HTTP 200  team-remaining=$($r.Headers['x-team-tokens-remaining'])"
+    $content = ($r.Content | ConvertFrom-Json).choices[0].message.content
+    $snippet = $content.Substring(0, [Math]::Min(220, $content.Length))
+    Write-Host "Call $i : HTTP 200  team-remaining=$($r.Headers['x-team-tokens-remaining'])" -ForegroundColor Green
+    Write-Host "   Model says: $snippet..." -ForegroundColor Cyan
   } catch {
     $code = [int]$_.Exception.Response.StatusCode
-    if ($code -eq 429) { $hit = $true; "Call $i`: HTTP 429  TOKEN LIMIT EXCEEDED — team quota enforced" }
-    else { "Call $i`: HTTP $code" }
+    if ($code -eq 429) {
+      $hit = $true
+      Write-Host "Call $i : HTTP 429  TOKEN LIMIT EXCEEDED - team quota enforced" -ForegroundColor Red
+      Write-Host "   $($_.ErrorDetails.Message -replace '\s+',' ')" -ForegroundColor Red
+    } else {
+      Write-Host "Call $i : HTTP $code" -ForegroundColor Yellow
+    }
   }
 }
+```
+
+On screen the customer sees the **model's actual essay text in cyan** on the first call
+(proof real generation is happening), then a **red `429`** on the second when the team's
+budget is spent:
+
+```text
+Call 1 : HTTP 200  team-remaining=0
+   Model says: # Cloud Governance: Ensuring Security, Compliance, and Efficiency...
+Call 2 : HTTP 429  TOKEN LIMIT EXCEEDED - team quota enforced
+   { "error": "token_limit_exceeded", "team": "marketing", "message": "..." }
 ```
 
 Watch `team-remaining` hit 0 on the first call and a `429` on the **second** — the
