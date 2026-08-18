@@ -66,6 +66,27 @@
     <outbound>
         <base />
         <azure-openai-semantic-cache-store duration="3600" />
+        <!-- Log token usage to App Insights traces so per-team chargeback is queryable in Logs
+             (APIM custom metrics only reach Metrics explorer, not the customMetrics table). -->
+        <trace source="aigw-usage" severity="information">
+            <message>@{
+                var total = 0;
+                try {
+                    var body = context.Response.Body?.As<JObject>(preserveContent: true);
+                    if (body != null && body["usage"] != null && body["usage"]["total_tokens"] != null) {
+                        total = (int)body["usage"]["total_tokens"];
+                    }
+                } catch { }
+                return new JObject(
+                    new JProperty("type", "token-usage"),
+                    new JProperty("team", (string)context.Variables["teamId"]),
+                    new JProperty("costCenter", (string)context.Variables["costCenter"]),
+                    new JProperty("user", (string)context.Variables["userUpn"]),
+                    new JProperty("vendor", "foundry"),
+                    new JProperty("totalTokens", total)
+                ).ToString();
+            }</message>
+        </trace>
     </outbound>
 
     <on-error>

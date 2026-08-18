@@ -57,29 +57,27 @@ requests
 > Workspace variant: `requests` → `AppRequests`, `resultCode` → `ResultCode`,
 > `timestamp` → `TimeGenerated`.
 
-## 4. Token usage per team (custom metric)
+## 4. Token usage per team (from the usage trace)
 
-The gateway emits a `TotalTokens` custom metric tagged with Team / CostCenter / Vendor.
+Each Foundry response logs an `aigw-usage` trace with the team and `total_tokens`.
+(APIM custom metrics only reach **Metrics explorer**, not the Logs `customMetrics` table —
+so we read tokens from traces, which are queryable here.)
 
 ```kql
-customMetrics
+traces
 | where timestamp > ago(24h)
-| where name in ("Total Tokens", "TotalTokens")
-| extend Team = tostring(customDimensions["Team"]), CostCenter = tostring(customDimensions["CostCenter"]), Vendor = tostring(customDimensions["Vendor"])
-| summarize Tokens = sum(valueSum) by Team, CostCenter, Vendor
+| where message has "token-usage"
+| extend d = parse_json(message)
+| where tostring(d.type) == "token-usage"
+| summarize Tokens = sum(toint(d.totalTokens)) by Team = tostring(d.team), CostCenter = tostring(d.costCenter)
 | order by Tokens desc
 ```
 
-> If this returns nothing, the metric is still visible in **Metrics explorer** (open the
-> App Insights resource → **Metrics** → metric `TotalTokens`, split by `Team`). Preserving
-> custom-metric **dimensions** in Logs requires "custom metrics with dimensions" enabled on
-> the App Insights resource; Query 1 (trace-based) is the dependable chargeback view for the
-> demo. Workspace variant: `customMetrics` → `AppMetrics`, `customDimensions` → `Properties`,
-> `valueSum` → `Sum`.
+> Workspace variant: `traces` → `AppTraces`, `message` → `Message`, `timestamp` → `TimeGenerated`.
 
 ## 5. Chargeback ($) per cost center — combine tokens with a price map
 
-Uses the same custom metric as Query 4; update the rates to your negotiated pricing.
+Uses the same usage trace as Query 4; update the rates to your negotiated pricing.
 
 ```kql
 let rates = datatable(Vendor:string, PricePerKTokens:real)
@@ -89,13 +87,19 @@ let rates = datatable(Vendor:string, PricePerKTokens:real)
     "bedrock",   0.008,
     "vertex",    0.007
 ];
-customMetrics
+traces
 | where timestamp > ago(30d)
-| where name in ("Total Tokens", "TotalTokens")
-| extend Team = tostring(customDimensions["Team"]), CostCenter = tostring(customDimensions["CostCenter"]), Vendor = tostring(customDimensions["Vendor"])
-| summarize Tokens = sum(valueSum) by CostCenter, Team, Vendor
+| where message has "token-usage"
+| extend d = parse_json(message)
+| where tostring(d.type) == "token-usage"
+| extend Team = tostring(d.team), CostCenter = tostring(d.costCenter), Vendor = tostring(d.vendor)
+| summarize Tokens = sum(toint(d.totalTokens)) by CostCenter, Team, Vendor
 | join kind=inner rates on Vendor
 | extend CostUsd = (Tokens / 1000.0) * PricePerKTokens
 | summarize TotalUsd = sum(CostUsd) by CostCenter, Team
 | order by TotalUsd desc
 ```
+
+> Workspace variant: `traces` → `AppTraces`, `message` → `Message`, `timestamp` → `TimeGenerated`.
+> Note: the token-usage trace is emitted by the **Foundry** API; add the same `<trace>` to
+> the other vendor APIs' outbound if you want their tokens in this view too.

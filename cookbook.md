@@ -922,10 +922,11 @@ marketing     CC-2002      2
   names (`traces`, `requests`, `customMetrics`). From the **Log Analytics workspace**, they
   are `AppTraces`, `AppRequests`, `AppMetrics` (and `TimeGenerated` not `timestamp`).
   Querying `customMetrics` in the workspace gives *"failed to resolve table"*.
-- **Token metric dimensions.** Per-team **token totals** come from the `TotalTokens` custom
-  metric; if the dimensional split isn't in Logs, view it in **Metrics explorer** (App
-  Insights → Metrics → `TotalTokens`, split by `Team`). The trace-based Query 1 is the
-  dependable chargeback view for a live demo.
+- **Token totals come from a trace, not `customMetrics`.** APIM's `emit-token-metric`
+  publishes only to **Metrics explorer**, never to the `customMetrics` Logs table — so the
+  Foundry outbound also writes an `aigw-usage` trace with `total_tokens`. Query 4 sums that
+  from `traces`/`AppTraces`, giving real per-team token totals (e.g. engineering 165,
+  marketing 83).
 
 > Metrics/traces take a few minutes to appear after traffic.
 
