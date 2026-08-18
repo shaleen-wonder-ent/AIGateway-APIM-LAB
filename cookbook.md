@@ -236,11 +236,12 @@ Each team is an APIM **Product** with its own limits, defined in
 
 | Team | Tokens/min | Requests/min | Tokens/day | Policy file |
 |---|---|---|---|---|
-| Marketing | 5,000 | 50 | 500,000 | [product-team-marketing.xml](policies/product-team-marketing.xml) |
+| Marketing | 1,000 | 50 | 500,000 | [product-team-marketing.xml](policies/product-team-marketing.xml) |
 | Engineering | 50,000 | 500 | 5,000,000 | [product-team-engineering.xml](policies/product-team-engineering.xml) |
 | Finance | 20,000 | 200 | 2,000,000 | [product-team-finance.xml](policies/product-team-finance.xml) |
 
-> Marketing and Engineering are demo-scaled to 1/10 so Demo 3 trips the `429` quickly.
+> Marketing is deliberately set very low (1,000 TPM) so Demo 3 trips the `429` on the
+> **second** call. Engineering stays higher so it remains the "still works" contrast.
 
 ### 3.4 The policies that enforce governance
 
@@ -635,9 +636,10 @@ for ($i = 1; $i -le 15 -and -not $hit; $i++) {
 }
 ```
 
-Watch `team-remaining` fall toward 0 and then a `429`. Because the cap is a **per-minute
-sliding window**, the remaining bounces (older tokens age out and replenish it) — that's
-normal; the `429` still lands once the window saturates.
+Watch `team-remaining` hit 0 on the first call and a `429` on the **second** — the
+Marketing cap (1,000 TPM) is intentionally tiny so one essay exhausts it. Because the
+cap is a **per-minute sliding window**, wait ~60 seconds between runs so the budget
+resets before you demo again.
 
 **Two things make this demo work (and why the naive version fails):**
 
@@ -659,7 +661,7 @@ $r = Invoke-WebRequest -Method Post -Uri "$gateway/foundry/openai/deployments/gp
 
 **What to say**
 
-> "Marketing is capped at 5,000 tokens per minute; Engineering at 50,000. Marketing hits
+> "Marketing is capped at 1,000 tokens per minute; Engineering at 50,000. Marketing hits
 > 429 and is throttled, while Engineering — a higher tier — keeps working. Same gateway,
 > different team budgets. This protects both the spend and the shared backend."
 

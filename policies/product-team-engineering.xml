@@ -23,6 +23,11 @@
             </when>
         </choose>
 
+        <!-- The subscription's product IS the team; make it authoritative for
+             counters, metrics, and error messages (overrides the group-priority guess). -->
+        <set-variable name="teamId" value="engineering" />
+        <set-variable name="costCenter" value="CC-1001" />
+
         <azure-openai-token-limit
             tokens-per-minute="50000"
             counter-key="@("engineering-tpm")"

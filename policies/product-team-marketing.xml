@@ -3,7 +3,7 @@
   Applied to APIM Product "team-marketing" which groups every AI API.
   Assign the Marketing security group's subscription to this product.
 
-  Tier: 5,000 TPM / 50 requests-per-minute / 500K tokens-per-day budget (demo-scaled).
+  Tier: 1,000 TPM / 50 requests-per-minute / 500K tokens-per-day budget (demo-scaled).
 -->
 <policies>
     <inbound>
@@ -26,11 +26,16 @@
             </when>
         </choose>
 
+        <!-- The subscription's product IS the team; make it authoritative for
+             counters, metrics, and error messages (overrides the group-priority guess). -->
+        <set-variable name="teamId" value="marketing" />
+        <set-variable name="costCenter" value="CC-2002" />
+
         <!-- SCENARIO 2: Per-minute token cap (Foundry / OpenAI-shaped). -->
         <!-- Counts real prompt+completion tokens so the demo trips quickly; -->
         <!-- distinct header so the team's remaining budget is visible.       -->
         <azure-openai-token-limit
-            tokens-per-minute="5000"
+            tokens-per-minute="1000"
             counter-key="@("marketing-tpm")"
             estimate-prompt-tokens="false"
             tokens-consumed-header-name="x-team-tokens-consumed"
