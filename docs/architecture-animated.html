@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Enterprise AI Gateway — Detailed Animated Architecture</title>
+<style>
+  :root{
+    --bg:#0d1420; --panel:#111c29; --card:#16212e; --card2:#182b3d;
+    --edge:#26384c; --edge2:#33506b; --txt:#e8eef5; --muted:#8ea6bd; --dim:#5f7488;
+    --entra:#3390de; --apim:#37a24d; --safety:#e05555; --foundry:#4aa3ea;
+    --vendor:#e8912e; --audit:#a366d6; --net:#26c0c0; --lock:#f2c14e;
+    --mono:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#132234,#0d1420);
+       color:var(--txt);font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding-bottom:40px}
+  header{text-align:center;padding:22px 16px 4px}
+  header h1{margin:0;font-size:23px;letter-spacing:.2px}
+  header p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 18px}
+
+  /* ---- Entra ribbon ---- */
+  .entra{margin:16px auto 8px;border:1px solid var(--edge2);border-left:4px solid var(--entra);
+         background:linear-gradient(180deg,#122740,#0f1d2e);border-radius:12px;padding:12px 16px}
+  .entra .t{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;flex-wrap:wrap}
+  .entra .t .b{background:#0e2036;color:#8fc6f5;border:1px solid #2c5b86;border-radius:6px;
+               padding:1px 8px;font-family:var(--mono);font-size:11.5px;font-weight:500}
+  .idgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+  .idcard{background:var(--card);border:1px solid var(--edge);border-radius:9px;padding:9px 11px;font-size:12px}
+  .idcard h4{margin:0 0 4px;font-size:12.5px;color:#bcd7f0}
+  .idcard code{font-family:var(--mono);font-size:11px;color:#e8eef5;background:#0d1a27;
+               border:1px solid #223549;border-radius:5px;padding:1px 5px;display:inline-block;margin-top:2px}
+  .idcard small{color:var(--muted);display:block;line-height:1.5;margin-top:3px}
+  .grp{display:inline-block;font-family:var(--mono);font-size:10.5px;margin:2px 4px 0 0;
+       padding:1px 6px;border-radius:5px;border:1px solid #2c5b86;color:#9fd0f5;background:#0e2036}
+
+  /* ---- Stage ---- */
+  .stage{position:relative;margin-top:14px}
+  .row{display:grid;grid-template-columns:0.9fr 1.55fr 1fr;gap:22px;align-items:stretch}
+  .box{background:var(--card);border:1px solid var(--edge);border-radius:13px;padding:14px;position:relative;transition:box-shadow .3s,border-color .3s}
+  .box h3{margin:0 0 8px;font-size:14.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .box .sub{color:var(--muted);font-size:12px;line-height:1.55}
+  .tag{font-family:var(--mono);font-size:10.5px;background:#0d1a27;border:1px solid var(--edge);
+       border-radius:5px;padding:1px 6px;color:#cfe0f0}
+  .client h3{color:#cfd8e0}
+  .apim{border-color:#245a34;background:linear-gradient(180deg,#132a1c,#122130)}
+  .apim h3{color:#7cd694}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+
+  /* pill / node highlight when active */
+  .glow-apim{box-shadow:0 0 0 2px var(--apim),0 0 24px -4px var(--apim)!important;border-color:var(--apim)!important}
+  .glow-safety{box-shadow:0 0 0 2px var(--safety),0 0 24px -4px var(--safety)!important;border-color:var(--safety)!important}
+  .glow-foundry{box-shadow:0 0 0 2px var(--foundry),0 0 24px -4px var(--foundry)!important;border-color:var(--foundry)!important}
+  .glow-audit{box-shadow:0 0 0 2px var(--audit),0 0 24px -4px var(--audit)!important;border-color:var(--audit)!important}
+
+  /* policy pipeline */
+  .steps{list-style:none;margin:10px 0 0;padding:0}
+  .steps li{display:flex;gap:9px;align-items:flex-start;padding:7px 9px;margin:5px 0;
+            border:1px solid var(--edge);border-radius:8px;font-size:12px;color:var(--muted);
+            opacity:.5;transition:all .25s;background:#0f1f16}
+  .steps li .n{font-family:var(--mono);font-size:10.5px;color:#7cd694;flex:0 0 auto;margin-top:1px}
+  .steps li b{color:#dfe9f2;font-weight:600}
+  .steps li code{font-family:var(--mono);font-size:10.5px;color:#a9e6bb}
+  .steps li.on{opacity:1;border-color:#3fbf63;background:#12331f;transform:translateX(3px)}
+
+  /* MI + named values footer inside apim */
+  .apimfoot{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .chip{font-size:11px;color:#cfe0f0;background:#0d1a27;border:1px solid var(--edge2);
+        border-radius:7px;padding:4px 8px;display:flex;align-items:center;gap:6px}
+  .chip .k{color:var(--muted)}
+
+  /* backend cards stacked */
+  .stack{display:flex;flex-direction:column;gap:10px;height:100%}
+  .mini{background:var(--card2);border:1px solid var(--edge);border-radius:10px;padding:10px 11px;transition:box-shadow .3s,border-color .3s}
+  .mini h4{margin:0 0 3px;font-size:12.5px;display:flex;align-items:center;gap:7px}
+  .mini small{color:var(--muted);font-size:11px;line-height:1.5;display:block}
+  .keyless{color:#7ee0a0;font-weight:600}
+  .foundry-c h4{color:#8ec8f2}
+  .safety-c h4{color:#f19a9a}
+  .vendor-c h4{color:#efb072}
+  .audit-c h4{color:#c8a6e8}
+
+  /* animated packet lane */
+  .lane{position:relative;height:40px;margin:16px 0 2px}
+  .track{position:absolute;top:19px;left:2%;right:2%;height:2px;
+         background:linear-gradient(90deg,#22384c,#3a6a55,#22384c)}
+  .packet{position:absolute;top:9px;width:22px;height:22px;border-radius:50%;
+          display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#04240f}
+  .req{background:radial-gradient(circle at 30% 30%,#c6f4d0,#2e9d47);box-shadow:0 0 16px #37b24d;
+       animation:req 12s linear infinite}
+  .res{background:radial-gradient(circle at 30% 30%,#aed6f7,#2f8fe0);box-shadow:0 0 16px #2f8fe0;color:#04203a;
+       animation:res 12s linear infinite}
+  @keyframes req{0%{left:2%;opacity:0}3%{opacity:1}47%{left:95%;opacity:1}50%,100%{left:95%;opacity:0}}
+  @keyframes res{0%,50%{left:95%;opacity:0}53%{opacity:1}97%{left:2%;opacity:1}100%{left:2%;opacity:0}}
+
+  /* caption + closures */
+  .caption{text-align:center;color:var(--muted);font-size:13.5px;margin:6px auto 14px;max-width:900px}
+  .caption b{color:#e8eef5}
+  .caption code{font-family:var(--mono);font-size:12px;color:#a9e6bb;background:#0f1f16;
+                border:1px solid #24462f;border-radius:5px;padding:1px 6px}
+  .caprow{position:relative;min-height:58px}
+  .caprow span{position:absolute;left:0;right:0;opacity:0;transition:opacity .4s}
+  .caprow span.on{opacity:1}
+
+  /* closures panel */
+  .closures{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 6px}
+  .lockcard{background:var(--card);border:1px solid var(--edge);border-radius:11px;padding:12px;text-align:center;
+            transition:all .3s;opacity:.55}
+  .lockcard .ic{font-size:22px;line-height:1}
+  .lockcard h4{margin:7px 0 3px;font-size:13px}
+  .lockcard small{color:var(--muted);font-size:11px;line-height:1.5;display:block}
+  .lockcard.locked{opacity:1;border-color:var(--lock);box-shadow:0 0 20px -6px var(--lock)}
+  .lockcard.locked h4{color:#f6d47a}
+
+  .legend{max-width:1000px;margin:16px auto 0;color:var(--muted);font-size:12px;text-align:center;line-height:1.7}
+  .legend .k{display:inline-flex;align-items:center;gap:6px;margin:0 10px}
+  .sw{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .controls{text-align:center;margin:14px 0 4px}
+  .controls button{background:#16303f;color:#cfe6f5;border:1px solid #2f5f7d;border-radius:8px;
+                   padding:7px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+  .controls button:hover{background:#1d4256}
+
+  @media(max-width:860px){.row{grid-template-columns:1fr}.idgrid{grid-template-columns:1fr}.closures{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Enterprise AI Gateway — How it&#39;s landed &amp; how a request flows</h1>
+    <p>Real resources in resource group <b>rg-aigw-demo</b> · region <b>eastus2</b> · one key‑less, governed front door for every AI model.</p>
+  </header>
+
+  <div class="wrap">
+
+    <!-- ============ ENTRA IDENTITY PLANE ============ -->
+    <div class="entra">
+      <div class="t">
+        <span style="color:#8fc6f5">◆ Microsoft Entra ID — identity control plane</span>
+        <span class="b">tenant 16b3c013‑d300‑468d‑ac64‑7eda0820b6d3</span>
+      </div>
+      <div class="idgrid">
+        <div class="idcard">
+          <h4>Gateway app registration <span class="tag">audience</span></h4>
+          <code>api://246e2a64‑1f33‑4479‑b7b6‑3b2cb348ab1f</code>
+          <small>“Enterprise AI Gateway”. Every token APIM accepts must carry <b>this</b> audience. Scope <b>access_as_user</b>.</small>
+        </div>
+        <div class="idcard">
+          <h4>Caller (client) app <span class="tag">public client</span></h4>
+          <code>04b07795‑8ddb‑461a‑bbee‑02f9e1bf7b46</code>
+          <small>The app the user signs into. Pre‑authorized for the gateway scope — issues the user’s Entra token.</small>
+        </div>
+        <div class="idcard">
+          <h4>Team security groups <span class="tag">authorization</span></h4>
+          <small>Group membership → team → quota &amp; cost center.</small>
+          <span class="grp">Engineering · CC‑1001</span>
+          <span class="grp">Marketing · CC‑2002</span>
+          <span class="grp">Finance · CC‑3003</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ MAIN FLOW ============ -->
+    <div class="stage">
+      <div class="row">
+
+        <!-- CLIENT -->
+        <div class="box client" id="node-client">
+          <h3><span class="dot" style="background:#cfd8e0"></span>Client app</h3>
+          <div class="sub">
+            Sends per request:<br>
+            • <b>Entra access token</b> (user identity + group claims)<br>
+            • <b>Team subscription key</b> <span class="tag">Ocp‑Apim‑Subscription‑Key</span><br>
+            • <b style="color:#7ee0a0">NO model API key</b> — the app never holds one
+          </div>
+        </div>
+
+        <!-- APIM GATEWAY -->
+        <div class="box apim" id="node-apim">
+          <h3><span class="dot" style="background:#37a24d"></span>Azure API Management — AI Gateway
+            <span class="tag">apim‑aigw‑shaleent‑001 · StandardV2</span></h3>
+          <div class="sub" style="margin-bottom:4px">Single endpoint <code style="font-family:var(--mono);color:#a9e6bb">https://apim-aigw-shaleent-001.azure-api.net</code></div>
+          <ul class="steps">
+            <li id="s1"><span class="n">1</span><span><b>Validate Entra token</b> · <code>validate-azure-ad-token</code> — audience must be <code>api://246e2a64…</code>, checks issuer &amp; signature</span></li>
+            <li id="s2"><span class="n">2</span><span><b>Authorize team</b> — subscription key must match a group claim (member of that team) else <code>403 wrong_team</code></span></li>
+            <li id="s3"><span class="n">3</span><span><b>Enforce quota</b> · <code>azure-openai-token-limit</code> — per‑team tokens / rate / daily, over‑limit → <code>429</code></span></li>
+            <li id="s4"><span class="n">4</span><span><b>Content safety + jailbreak shield</b> · <code>llm-content-safety</code> — runs <i>before</i> the model, unsafe → <code>400</code></span></li>
+            <li id="s5"><span class="n">5</span><span><b>Inject credential</b> — Foundry: <code>authentication-managed-identity</code> · vendors: secure named value. Strips any client key.</span></li>
+            <li id="s6"><span class="n">6</span><span><b>Emit audit + token metrics</b> — team, cost center, tokens → App Insights / Log Analytics</span></li>
+          </ul>
+          <div class="apimfoot">
+            <span class="chip"><span class="k">System‑assigned MI</span> 417ad067…</span>
+            <span class="chip"><span class="k">role</span> Cognitive Services User</span>
+            <span class="chip"><span class="k">named values</span> vendor keys (secret)</span>
+          </div>
+        </div>
+
+        <!-- BACKENDS -->
+        <div id="node-backends" style="background:transparent;border:none;padding:0">
+          <div class="stack">
+            <div class="mini foundry-c" id="node-foundry">
+              <h4><span class="dot" style="background:#4aa3ea"></span>Microsoft Foundry — GPT‑4o</h4>
+              <small><span class="tag">aoai‑apim‑aigw‑shaleent‑001</span></small>
+              <small><span class="keyless">Keyless · local_auth_enabled = false</span> — accepts only Entra tokens from APIM’s managed identity. No API key exists to leak.</small>
+            </div>
+            <div class="mini safety-c" id="node-safety">
+              <h4><span class="dot" style="background:#e05555"></span>Azure AI Content Safety</h4>
+              <small><span class="tag">cs‑apim‑aigw‑shaleent‑001</span></small>
+              <small><span class="keyless">Keyless · local_auth_enabled = false</span> — called by APIM’s MI before the prompt reaches any model.</small>
+            </div>
+            <div class="mini vendor-c" id="node-vendor">
+              <h4><span class="dot" style="background:#e8912e"></span>External vendors</h4>
+              <small>Anthropic · AWS Bedrock · Google Vertex — APIM injects the vendor key &amp; translates the payload. Same request shape for apps.</small>
+            </div>
+            <div class="mini audit-c" id="node-audit">
+              <h4><span class="dot" style="background:#a366d6"></span>Observability</h4>
+              <small><span class="tag">appi‑apim‑aigw‑shaleent‑001</span> → <span class="tag">law‑apim‑aigw‑shaleent‑001</span></small>
+              <small>Every call tagged team + cost center for chargeback &amp; audit.</small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ PACKET LANE ============ -->
+    <div class="lane">
+      <div class="track"></div>
+      <div class="packet req">REQ</div>
+      <div class="packet res">RES</div>
+    </div>
+
+    <div class="caption">
+      <div class="caprow" id="caprow">
+        <span data-step="1"><b>Step 1 — Identity.</b> The client presents an <b>Entra token</b> for audience <code>api://246e2a64…</code>. APIM verifies signature, issuer and audience. No valid token → <b>401</b>, before anything else runs.</span>
+        <span data-step="2"><b>Step 2 — Authorization.</b> The <b>team subscription key</b> must agree with a <b>group claim</b> in the token. Using another team’s key → <b>403 wrong_team</b>. Leaving a team revokes access on the next token.</span>
+        <span data-step="3"><b>Step 3 — Cost control.</b> APIM enforces that team’s <b>token / request / daily quota</b>. Marketing = 1,000 TPM, Engineering = 50,000 TPM, Finance = 20,000 TPM. Over‑limit → <b>429</b>, protecting the shared model and the budget.</span>
+        <span data-step="4"><b>Step 4 — Safety.</b> One shared <b>content‑safety + jailbreak shield</b> screens the prompt <i>before</i> the model is ever called. Harmful or prompt‑injection content → <b>400 content_filtered</b>.</span>
+        <span data-step="5"><b>Step 5 — Key‑less call.</b> APIM strips any client key and injects the credential itself — a <b>managed‑identity token</b> for Foundry, or the stored <b>vendor key</b> for Anthropic/Bedrock/Vertex. The app never sees a model credential.</span>
+        <span data-step="6"><b>Step 6 — Response &amp; audit.</b> The model’s answer returns through APIM, which records <b>team, cost center and tokens</b> to App Insights / Log Analytics for chargeback and audit — then hands the response back to the app.</span>
+      </div>
+    </div>
+
+    <!-- ============ SECURITY CLOSURES ============ -->
+    <div class="closures">
+      <div class="lockcard" id="lock-key">
+        <div class="ic">🔑</div>
+        <h4>No model keys in apps</h4>
+        <small>APIM injects MI token / vendor key. Apps hold none.</small>
+      </div>
+      <div class="lockcard" id="lock-keyless">
+        <div class="ic">🚫🗝️</div>
+        <h4>Keyless backends</h4>
+        <small>Foundry &amp; Content Safety <code style="font-family:var(--mono)">local_auth_enabled=false</code> — Entra‑only.</small>
+      </div>
+      <div class="lockcard" id="lock-net">
+        <div class="ic">🌐🔒</div>
+        <h4>Private ingress (prod)</h4>
+        <small>Reached over VNet/VPN; models never publicly exposed.</small>
+      </div>
+      <div class="lockcard" id="lock-quota">
+        <div class="ic">📊</div>
+        <h4>Governed &amp; audited</h4>
+        <small>Per‑team quota, content safety, full chargeback trail.</small>
+      </div>
+    </div>
+
+    <div class="controls"><button id="pause">⏸ Pause</button>
+      <span style="color:#8ea6bd;font-size:12px;margin-left:10px">tip: click anywhere to pause / resume</span></div>
+
+    <div class="legend">
+      <span class="k"><span class="sw" style="background:#2e9d47"></span> Green = request in</span>
+      <span class="k"><span class="sw" style="background:#2f8fe0"></span> Blue = response out</span>
+      <span class="k"><span class="sw" style="background:#f2c14e"></span> Gold lock = a security closure proven by this step</span>
+      <br>The client only ever holds an <b>identity</b> and a <b>team key</b> — the gateway holds every model credential and enforces every rule.
+    </div>
+  </div>
+
+<script>
+(function(){
+  const TOTAL = 12000;               // must match req/res CSS animation duration
+  const steps = [1,2,3,4,5,6];
+  const marks = {1:0.02, 2:0.10, 3:0.18, 4:0.28, 5:0.40, 6:0.55};
+  const glow = {
+    1:['node-apim','glow-apim'], 2:['node-apim','glow-apim'],
+    3:['node-apim','glow-apim'], 4:['node-safety','glow-safety'],
+    5:['node-foundry','glow-foundry'], 6:['node-audit','glow-audit']
+  };
+  const lockFor = {1:'lock-key',2:null,3:'lock-quota',4:'lock-quota',5:'lock-keyless',6:'lock-net'};
+
+  const caps = [...document.querySelectorAll('#caprow span')];
+  const liEls = {}; steps.forEach(s=>liEls[s]=document.getElementById('s'+s));
+  let start = performance.now(), paused=false, pausedAt=0, lastStep=0;
+
+  function clearGlows(){
+    ['node-apim','node-safety','node-foundry','node-audit'].forEach(id=>{
+      document.getElementById(id).classList.remove('glow-apim','glow-safety','glow-foundry','glow-audit');
+    });
+  }
+  function resetLocks(){
+    ['lock-key','lock-keyless','lock-net','lock-quota'].forEach(id=>
+      document.getElementById(id).classList.remove('locked'));
+  }
+  function setStep(s){
+    caps.forEach(c=>c.classList.toggle('on', +c.dataset.step===s));
+    steps.forEach(k=>liEls[k].classList.toggle('on', k<=s));
+    clearGlows();
+    const g=glow[s]; if(g) document.getElementById(g[0]).classList.add(g[1]);
+    const lid=lockFor[s]; if(lid) document.getElementById(lid).classList.add('locked');
+    if(s>=5){ document.getElementById('lock-key').classList.add('locked');
+              document.getElementById('lock-keyless').classList.add('locked'); }
+  }
+
+  function tick(now){
+    if(!paused){
+      const t=((now-start)%TOTAL)/TOTAL;
+      if(t<0.02 && lastStep!==0){ resetLocks(); lastStep=0; }
+      let cur=0;
+      for(const s of steps){ if(t>=marks[s]) cur=s; }
+      if(cur!==lastStep && cur>0){ setStep(cur); lastStep=cur; }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  const btn=document.getElementById('pause');
+  function togglePause(){
+    paused=!paused;
+    const state = paused ? 'paused':'running';
+    document.querySelectorAll('.req,.res').forEach(el=>el.style.animationPlayState=state);
+    if(paused){ pausedAt=performance.now(); btn.textContent='▶ Play'; }
+    else { start += performance.now()-pausedAt; btn.textContent='⏸ Pause'; }
+  }
+  btn.addEventListener('click', e=>{ e.stopPropagation(); togglePause(); });
+  // click anywhere on the page to pause/resume (ignore clicks on links/buttons)
+  document.addEventListener('click', e=>{ if(e.target.closest('button,a')) return; togglePause(); });
+})();
+</script>
+</body>
+</html>

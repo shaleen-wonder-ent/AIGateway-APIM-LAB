@@ -1,0 +1,62 @@
+<mxfile host="app.diagrams.net" version="24.0.0" type="device">
+  <diagram name="Enterprise AI Gateway" id="ai-gateway-arch">
+    <mxGraphModel dx="1100" dy="760" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Enterprise AI Gateway on Azure API Management" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="560" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="entra" value="Microsoft Entra ID&#10;&#10;• Enterprise AI Gateway app (token audience)&#10;• Team groups: Marketing / Engineering / Finance&#10;• Scope: access_as_user  •  Managed identity RBAC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6F2FB;strokeColor=#1B78C2;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="70" width="300" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="client" value="Client App&#10;&#10;Sends: Entra token + team subscription key&#10;Sends: NO model API key" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#666666;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="300" width="300" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="apim" value="Azure API Management — AI Gateway&#10;&#10;Global policy:  private-IP filter · Entra validation · team &amp; cost-center · audit trace&#10;Product policy:  per-team token / request / daily quotas · cross-team guard&#10;API policy:  content safety · enterprise system prompt · key stripping ·&#10;                    vendor key injection · payload translation · token metrics&#10;Authenticates to Foundry with its system-assigned managed identity (keyless)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DFF3E4;strokeColor=#2E7D32;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=12;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="440" y="150" width="380" height="220" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cs" value="Azure AI Content Safety&#10;Harmful content + jailbreak (Prompt Shield)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDEDED;strokeColor=#C62828;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="900" y="70" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="foundry" value="Microsoft Foundry (Azure OpenAI)&#10;gpt-4o · text-embedding-ada-002&#10;API key auth DISABLED — Entra (RBAC) only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6F2FB;strokeColor=#1B78C2;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="900" y="185" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="vendors" value="Anthropic · AWS Bedrock · Google Vertex&#10;Vendor key stored in APIM &amp; injected&#10;OpenAI-shaped request translated per vendor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF4E5;strokeColor=#E67E22;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="900" y="315" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="appi" value="Application Insights + Log Analytics&#10;Chargeback &amp; audit: team · cost center · tokens · denied attempts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFE6FB;strokeColor=#6A1B9A;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="440" y="430" width="380" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-entra-client" value="1. issues Entra token" style="endArrow=block;html=1;rounded=1;fontSize=11;strokeColor=#1B78C2;" edge="1" parent="1" source="entra" target="client">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-client-apim" value="2. token + team key (no model key)" style="endArrow=block;html=1;rounded=1;fontSize=11;strokeColor=#333333;" edge="1" parent="1" source="client" target="apim">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-apim-cs" value="3. content + jailbreak check (managed identity)" style="endArrow=block;html=1;rounded=1;fontSize=11;strokeColor=#C62828;" edge="1" parent="1" source="apim" target="cs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-apim-foundry" value="4a. call model — managed identity (keyless)" style="endArrow=block;html=1;rounded=1;fontSize=11;strokeColor=#1B78C2;" edge="1" parent="1" source="apim" target="foundry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-apim-vendors" value="4b. inject vendor key + translate" style="endArrow=block;html=1;rounded=1;fontSize=11;strokeColor=#E67E22;" edge="1" parent="1" source="apim" target="vendors">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-apim-appi" value="5. audit + token metrics" style="endArrow=block;html=1;rounded=1;fontSize=11;strokeColor=#6A1B9A;" edge="1" parent="1" source="apim" target="appi">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
