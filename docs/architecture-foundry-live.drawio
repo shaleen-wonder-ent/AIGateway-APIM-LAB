@@ -1,0 +1,146 @@
+<mxfile host="65bd71144e">
+    <diagram name="Foundry Agent Live Architecture" id="foundry-agent-live">
+        <mxGraphModel dx="1826" dy="775" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="720" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=left;verticalAlign=middle;fontColor=#0B2545;" value="Microsoft Foundry Agent Architecture" vertex="1">
+                    <mxGeometry height="30" width="700" x="40" y="12" as="geometry"/>
+                </mxCell>
+                <mxCell id="subtitle" parent="1" style="text;html=1;fontSize=13;align=left;verticalAlign=middle;fontColor=#5A6B7B;" value="Identity-aware AI gateway with privately connected Foundry Agent data services" vertex="1">
+                    <mxGeometry height="22" width="700" x="40" y="42" as="geometry"/>
+                </mxCell>
+                <mxCell id="plane-public" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1F7FC;strokeColor=#9DC3E6;align=left;verticalAlign=top;spacingLeft=14;spacingTop=8;fontSize=13;fontStyle=1;fontColor=#0B2545;arcSize=4;dashed=1;dashPattern=6 4;" value="Public access and governance plane" vertex="1">
+                    <mxGeometry height="130" width="1140" x="30" y="78" as="geometry"/>
+                </mxCell>
+                <mxCell id="users" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1CA6C9;align=left;spacingLeft=62;verticalAlign=top;spacingTop=8;fontSize=12;fontStyle=1;arcSize=8;" value="Users &amp; Applications&#xa;&#xa;Approved identities&#xa;No direct Foundry keys" vertex="1">
+                    <mxGeometry height="76" width="240" x="70" y="118" as="geometry"/>
+                </mxCell>
+                <mxCell id="users-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22u%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%233ACBF0%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231E9BD7%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2221%22%20r%3D%2211%22%20fill%3D%22url%28%23u%29%22%2F%3E%3Cpath%20d%3D%22M11%2054%20C11%2041%2020%2034%2032%2034%20C44%2034%2053%2041%2053%2054%20A2%202%200%200%201%2051%2056%20H13%20A2%202%200%200%201%2011%2054%20Z%22%20fill%3D%22url%28%23u%29%22%2F%3E%3C%2Fsvg%3E;" vertex="1">
+                    <mxGeometry height="36" width="36" x="82" y="138" as="geometry"/>
+                </mxCell>
+                <mxCell id="entra" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3FA34D;align=left;spacingLeft=62;verticalAlign=top;spacingTop=8;fontSize=12;fontStyle=1;arcSize=8;" value="Microsoft Entra ID&#xa;&#xa;Teams, roles and access&#xa;OAuth 2.0 authorization" vertex="1">
+                    <mxGeometry height="76" width="240" x="390" y="118" as="geometry"/>
+                </mxCell>
+                <mxCell id="entra-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22e%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%236FBE4B%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%233FA34D%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2221%22%20r%3D%2211%22%20fill%3D%22url%28%23e%29%22%2F%3E%3Cpath%20d%3D%22M11%2054%20C11%2041%2020%2034%2032%2034%20C44%2034%2053%2041%2053%2054%20A2%202%200%200%201%2051%2056%20H13%20A2%202%200%200%201%2011%2054%20Z%22%20fill%3D%22url%28%23e%29%22%2F%3E%3C%2Fsvg%3E;" vertex="1">
+                    <mxGeometry height="40" width="40" x="402" y="136" as="geometry"/>
+                </mxCell>
+                <mxCell id="apim" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5B7CFA;align=left;spacingLeft=64;verticalAlign=top;spacingTop=8;fontSize=12;fontStyle=1;arcSize=8;" value="API Management Standard v2&#xa;&#xa;Public AI gateway with IP restrictions&#xa;Entra JWT   •   Team quotas   •   Token metrics" vertex="1">
+                    <mxGeometry height="88" width="420" x="700" y="112" as="geometry"/>
+                </mxCell>
+                <mxCell id="apim-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=img/lib/azure2/app_services/API_Management_Services.svg;" vertex="1">
+                    <mxGeometry height="42" width="42" x="714" y="134" as="geometry"/>
+                </mxCell>
+                <mxCell id="plane-vnet" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF6FB;strokeColor=#5B9BD5;align=left;verticalAlign=top;spacingLeft=48;spacingTop=8;fontSize=13;fontStyle=1;fontColor=#0B2545;arcSize=4;dashed=1;dashPattern=6 4;" value="AI Platform VNet" vertex="1">
+                    <mxGeometry height="170" width="1140" x="30" y="288" as="geometry"/>
+                </mxCell>
+                <mxCell id="vnet-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=img/lib/azure2/networking/Virtual_Networks.svg;" vertex="1">
+                    <mxGeometry height="26" width="26" x="44" y="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="subnet-agents" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A5BF0;align=left;spacingLeft=62;verticalAlign=top;spacingTop=8;fontSize=12;fontStyle=1;arcSize=8;" value="Foundry Agents Subnet&#xa;&#xa;Delegated agent runtime&#xa;Microsoft.App/environments" vertex="1">
+                    <mxGeometry height="90" width="300" x="70" y="330" as="geometry"/>
+                </mxCell>
+                <mxCell id="subnet-agents-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=img/lib/azure2/networking/Subnet.svg;" vertex="1">
+                    <mxGeometry height="40" width="40" x="82" y="350" as="geometry"/>
+                </mxCell>
+                <mxCell id="subnet-pe" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2FA79B;align=left;spacingLeft=62;verticalAlign=top;spacingTop=8;fontSize=12;fontStyle=1;arcSize=8;" value="Private Endpoints Subnet&#xa;&#xa;Foundry, Search, Storage and Cosmos DB&#xa;Private Link and private DNS" vertex="1">
+                    <mxGeometry height="90" width="290" x="445" y="330" as="geometry"/>
+                </mxCell>
+                <mxCell id="subnet-pe-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=img/lib/azure2/networking/Private_Link.svg;" vertex="1">
+                    <mxGeometry height="40" width="40" x="457" y="350" as="geometry"/>
+                </mxCell>
+                <mxCell id="subnet-apim" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5B7CFA;align=left;spacingLeft=62;verticalAlign=top;spacingTop=8;fontSize=12;fontStyle=1;arcSize=8;" value="APIM Integration Subnet&#xa;&#xa;Outbound VNet integration&#xa;Private access to Foundry" vertex="1">
+                    <mxGeometry height="90" width="290" x="810" y="330" as="geometry"/>
+                </mxCell>
+                <mxCell id="subnet-apim-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=img/lib/azure2/networking/Subnet.svg;" vertex="1">
+                    <mxGeometry height="40" width="40" x="822" y="350" as="geometry"/>
+                </mxCell>
+                <mxCell id="plane-foundry" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6F1FC;strokeColor=#9B7BD8;align=left;verticalAlign=top;spacingLeft=14;spacingTop=8;fontSize=13;fontStyle=1;fontColor=#0B2545;arcSize=4;" value="Microsoft Foundry resources" vertex="1">
+                    <mxGeometry height="200" width="1140" x="30" y="490" as="geometry"/>
+                </mxCell>
+                <mxCell id="foundry-agent" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6C3FD1;align=left;spacingLeft=64;verticalAlign=top;spacingTop=8;fontSize=12;fontStyle=1;arcSize=8;" value="Microsoft Foundry Agent&#xa;&#xa;Account, project, model and agent runtime&#xa;Managed identity · No backend API keys" vertex="1">
+                    <mxGeometry height="76" width="360" x="320" y="512" as="geometry"/>
+                </mxCell>
+                <mxCell id="foundry-agent-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22t%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%220%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%233AC7F5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%234AA3F0%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22l%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232C82E0%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%232660C8%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22r%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%237A4FF0%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%235A2AD0%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20fill%3D%22url%28%23t%29%22%20d%3D%22M32%208%20L52%2019%20L44%2024%20L32%2017%20L20%2024%20L12%2019%20Z%22%2F%3E%3Cpath%20fill%3D%22url%28%23l%29%22%20d%3D%22M12%2019%20L20%2024%20L20%2040%20L12%2045%20Z%22%2F%3E%3Cpath%20fill%3D%22url%28%23r%29%22%20d%3D%22M52%2019%20L52%2045%20L32%2056%20L32%2040%20L44%2033%20L44%2024%20Z%22%2F%3E%3Cpath%20fill%3D%22url%28%23t%29%22%20d%3D%22M20%2040%20L32%2047%20L32%2056%20L12%2045%20Z%22%2F%3E%3C%2Fsvg%3E;" vertex="1">
+                    <mxGeometry height="42" width="42" x="334" y="530" as="geometry"/>
+                </mxCell>
+                <mxCell id="appinsights" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9B7BD8;align=left;spacingLeft=62;verticalAlign=top;spacingTop=8;fontSize=12;fontStyle=1;arcSize=8;" value="Application Insights&#xa;&#xa;Audit, usage and chargeback" vertex="1">
+                    <mxGeometry height="76" width="280" x="800" y="512" as="geometry"/>
+                </mxCell>
+                <mxCell id="appinsights-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=img/lib/azure2/devops/Application_Insights.svg;" vertex="1">
+                    <mxGeometry height="40" width="40" x="814" y="530" as="geometry"/>
+                </mxCell>
+                <mxCell id="cosmos" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#E8A33D;align=left;spacingLeft=44;verticalAlign=middle;fontSize=12;fontStyle=1;arcSize=10;" value="Cosmos DB" vertex="1">
+                    <mxGeometry height="44" width="250" x="150" y="620" as="geometry"/>
+                </mxCell>
+                <mxCell id="cosmos-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=img/lib/azure2/databases/Azure_Cosmos_DB.svg;" vertex="1">
+                    <mxGeometry height="28" width="28" x="160" y="628" as="geometry"/>
+                </mxCell>
+                <mxCell id="search" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4C8BF5;align=left;spacingLeft=44;verticalAlign=middle;fontSize=12;fontStyle=1;arcSize=10;" value="Azure AI Search" vertex="1">
+                    <mxGeometry height="44" width="250" x="470" y="620" as="geometry"/>
+                </mxCell>
+                <mxCell id="search-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=img/lib/azure2/app_services/Search_Services.svg;" vertex="1">
+                    <mxGeometry height="28" width="28" x="480" y="628" as="geometry"/>
+                </mxCell>
+                <mxCell id="storage" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2FA79B;align=left;spacingLeft=44;verticalAlign=middle;fontSize=12;fontStyle=1;arcSize=10;" value="Storage Account" vertex="1">
+                    <mxGeometry height="44" width="250" x="790" y="620" as="geometry"/>
+                </mxCell>
+                <mxCell id="storage-ico" parent="1" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=none;aspect=fixed;shape=image;image=img/lib/azure2/storage/Storage_Accounts.svg;" vertex="1">
+                    <mxGeometry height="28" width="28" x="800" y="628" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-users-entra" edge="1" parent="1" source="users" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;endArrow=block;endFill=1;fontSize=11;strokeColor=#0078D4;strokeWidth=2;fontColor=#0B2545;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="entra" value="Entra sign-in">
+                    <mxGeometry relative="1" y="16" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-entra-apim" edge="1" parent="1" source="entra" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;endArrow=block;endFill=1;fontSize=11;strokeColor=#0078D4;strokeWidth=2;fontColor=#0B2545;exitX=0.55;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.72;entryDx=0;entryDy=0;" target="apim" value="Authenticated API request">
+                    <mxGeometry relative="1" x="-0.0028" y="-16" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-apim-apimsubnet" edge="1" parent="1" source="apim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;endArrow=block;endFill=1;fontSize=11;strokeColor=#0078D4;strokeWidth=2;fontColor=#0B2545;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="subnet-apim" value="Outbound VNet integration">
+                    <mxGeometry relative="1" x="0.2571" y="51" as="geometry">
+                        <mxPoint x="-6" y="-25" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-apimsubnet-pe" edge="1" parent="1" source="subnet-apim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;endArrow=block;endFill=1;fontSize=11;strokeColor=#7A5BF0;strokeWidth=2;fontColor=#0B2545;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="subnet-pe" value="Private access">
+                    <mxGeometry relative="1" x="0.0667" y="-65" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-agents-foundry" edge="1" parent="1" source="subnet-agents" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;dashed=1;endArrow=block;endFill=1;fontSize=11;strokeColor=#7A5BF0;strokeWidth=2;fontColor=#0B2545;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.2;entryY=0;entryDx=0;entryDy=0;" target="foundry-agent" value="Agent runtime network injection">
+                    <mxGeometry relative="1" x="0.0303" y="26" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-pe-foundry" edge="1" parent="1" source="subnet-pe" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;endArrow=block;endFill=1;fontSize=11;strokeColor=#2FA79B;strokeWidth=2;fontColor=#0B2545;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.6;entryY=0;entryDx=0;entryDy=0;" target="foundry-agent" value="Private Foundry endpoint">
+                    <mxGeometry relative="1" x="-0.6581" y="69" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-foundry-appi" edge="1" parent="1" source="foundry-agent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;dashed=1;endArrow=block;endFill=1;fontSize=11;strokeColor=#9B7BD8;strokeWidth=2;fontColor=#0B2545;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="appinsights" value="Telemetry">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-foundry-cosmos" edge="1" parent="1" source="foundry-agent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;endArrow=block;endFill=1;fontSize=11;strokeColor=#6C3FD1;strokeWidth=2;fontColor=#0B2545;exitX=0.2;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="cosmos" value="Managed identity over Private Link">
+                    <mxGeometry relative="1" x="-0.7852" y="41" as="geometry">
+                        <mxPoint x="38" y="-25" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-foundry-search" edge="1" parent="1" source="foundry-agent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;endArrow=block;endFill=1;fontSize=11;strokeColor=#6C3FD1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="search">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-foundry-storage" edge="1" parent="1" source="foundry-agent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;endArrow=block;endFill=1;fontSize=11;strokeColor=#6C3FD1;strokeWidth=2;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="storage">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-apim-appi" edge="1" parent="1" source="apim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;flowAnimation=1;dashed=1;dashPattern=6 4;endArrow=block;endFill=1;fontSize=11;strokeColor=#9B7BD8;strokeWidth=2;fontColor=#5A6B7B;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;" target="appinsights" value="APIM telemetry">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1130" y="156"/>
+                            <mxPoint x="1130" y="512"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

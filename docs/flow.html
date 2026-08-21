@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Enterprise AI Gateway — Request Flow (Sequence)</title>
+<style>
+  :root{
+    --bg:#0d1420; --card:#16212e; --edge:#26384c; --edge2:#33506b;
+    --txt:#e8eef5; --muted:#8ea6bd;
+    --client:#cfd8e0; --apim:#37a24d; --entra:#3390de; --cs:#e05555; --foundry:#4aa3ea;
+    --mono:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#132234,#0d1420);
+       color:var(--txt);font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding-bottom:36px}
+  header{text-align:center;padding:20px 16px 2px}
+  header h1{margin:0;font-size:22px}
+  header p{margin:6px 0 0;color:var(--muted);font-size:13px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+  .diagram{background:var(--card);border:1px solid var(--edge);border-radius:14px;margin-top:14px;padding:6px 8px}
+  svg{width:100%;height:auto;display:block}
+
+  /* SVG element styling via classes */
+  .lifeline{stroke:#2a3d52;stroke-width:1.5;stroke-dasharray:4 5}
+  .llbox{fill:#101d2b;stroke-width:1.6;rx:9}
+  .lltext{font-family:Segoe UI,sans-serif;font-size:13px;font-weight:600;text-anchor:middle;paint-order:stroke;stroke:#0d1420;stroke-width:3}
+  .llsub{font-family:var(--mono);font-size:9px;text-anchor:middle;fill:#7f97ad;paint-order:stroke;stroke:#0d1420;stroke-width:3}
+  .llbox.hot{filter:drop-shadow(0 0 8px currentColor)}
+  .msgline{stroke-width:2;transition:opacity .3s}
+  .msglabel{font-family:Segoe UI,sans-serif;font-size:11.5px;text-anchor:middle;fill:#dfe9f2;
+            paint-order:stroke;stroke:#0d1420;stroke-width:3.5;transition:opacity .3s}
+  .ret{stroke-dasharray:5 4}
+  .packet{filter:drop-shadow(0 0 6px currentColor)}
+
+  /* HUD */
+  .hud{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-top:14px}
+  .caption{background:var(--card);border:1px solid var(--edge);border-left:4px solid var(--apim);
+           border-radius:12px;padding:14px 16px;min-height:78px}
+  .caption .stepno{font-family:var(--mono);font-size:12px;color:#7cd694}
+  .caption h3{margin:4px 0 6px;font-size:15px}
+  .caption p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+  .caption code{font-family:var(--mono);font-size:12px;color:#a9e6bb;background:#0f1f16;
+                border:1px solid #24462f;border-radius:5px;padding:1px 6px}
+
+  .wire{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 16px}
+  .wire h4{margin:0 0 8px;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .wirebadge{border-radius:10px;padding:11px 12px;transition:all .35s;border:1px solid var(--edge2)}
+  .wirebadge .lab{font-size:14px;font-weight:700}
+  .wirebadge .sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-family:var(--mono)}
+  .w-jwt{background:#0e2036;border-color:#2c5b86} .w-jwt .lab{color:#9fd0f5}
+  .w-hold{background:#141b26;border-color:#3a506b} .w-hold .lab{color:#c8d6e6}
+  .w-swap{background:#241433;border-color:#7a3fb0;animation:flash .8s ease-in-out infinite} .w-swap .lab{color:#d3a6f0}
+  .w-mi{background:#08201f;border-color:#2f8f8f} .w-mi .lab{color:#8ee6e6}
+  .w-res{background:#132a1c;border-color:#245a34} .w-res .lab{color:#8ee0a8}
+  @keyframes flash{0%,100%{box-shadow:0 0 0 rgba(160,80,220,0)}50%{box-shadow:0 0 22px -4px #a050dc}}
+
+  .controls{text-align:center;margin:16px 0 6px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+  .controls button{background:#16303f;color:#cfe6f5;border:1px solid #2f5f7d;border-radius:8px;
+                   padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit}
+  .controls button:hover{background:#1d4256}
+  .controls .tip{color:var(--muted);font-size:12px;margin-left:6px}
+  .progress{display:flex;gap:5px;justify-content:center;margin:8px 0 0}
+  .progress i{width:22px;height:4px;border-radius:2px;background:#26384c;transition:background .3s}
+  .progress i.done{background:#3f7a54} .progress i.cur{background:#5fd07a}
+  .legend{max-width:1000px;margin:14px auto 0;color:var(--muted);font-size:12px;text-align:center;line-height:1.7}
+  @media(max-width:820px){.hud{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <header>
+    <h1>How a request flows through the AI Gateway</h1>
+    <p>A single call, step by step — watch the identity on the wire change from the <b>user’s token</b> to <b>APIM’s own identity</b> before the model is ever touched.</p>
+  </header>
+
+  <div class="wrap">
+    <div class="diagram">
+      <svg id="seq" viewBox="0 0 1020 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Request sequence diagram"></svg>
+    </div>
+
+    <div class="hud">
+      <div class="caption">
+        <div class="stepno" id="stepno">step 1 / 10</div>
+        <h3 id="captitle">—</h3>
+        <p id="capbody">—</p>
+      </div>
+      <div class="wire">
+        <h4>Identity on the wire</h4>
+        <div class="wirebadge w-jwt" id="wirebadge">
+          <div class="lab" id="wirelab">—</div>
+          <div class="sub" id="wiresub">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress" id="progress"></div>
+
+    <div class="controls">
+      <button id="restart">⟲ Restart</button>
+      <button id="prev">◀ Prev</button>
+      <button id="play">⏸ Pause</button>
+      <button id="next">Next ▶</button>
+      <span class="tip">auto‑plays · click Pause to explain a step</span>
+    </div>
+
+    <div class="legend">
+      Solid arrow = a call · dashed arrow = the reply.
+      The <b>gold pivot (step 7)</b> is the key idea: the user’s JWT is dropped and APIM attaches its <b>own managed identity</b>,
+      so the model only ever trusts the gateway — and there is <b>no API key</b> anywhere.
+    </div>
+  </div>
+
+<script>
+(function(){
+  const SVG="http://www.w3.org/2000/svg";
+  const svg=document.getElementById("seq");
+  function el(tag,attrs){ const e=document.createElementNS(SVG,tag);
+    for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+
+  // ---- lifelines (left → right) ----
+  const lanes=[
+    {id:"client", name:"User / App",        sub:"holds identity + team key", x:100, color:"#cfd8e0"},
+    {id:"apim",   name:"APIM — AI Gateway",  sub:"apim-aigw-shaleent-001",    x:355, color:"#37a24d"},
+    {id:"entra",  name:"Microsoft Entra ID", sub:"token authority",           x:575, color:"#3390de"},
+    {id:"cs",     name:"Content Safety",     sub:"cs-…-001 (keyless)",         x:770, color:"#e05555"},
+    {id:"foundry",name:"Foundry GPT-4o",     sub:"aoai-…-001 (keyless)",       x:935, color:"#4aa3ea"},
+  ];
+  const laneX=Object.fromEntries(lanes.map(l=>[l.id,l.x]));
+  const TOP=64, BOT=576;
+
+  // ---- messages (the sequence) ----
+  const M=[
+    {from:"client",to:"apim",   y:112, kind:"call", color:"#2e9d47",
+     title:"1 · The app calls the gateway",
+     body:"The client sends its request with an <b>Entra JWT</b> and a <b>team subscription key</b> — and <b>no model key</b>. It reaches only APIM, never the model.",
+     label:"POST /chat  +  Entra JWT  +  team key", hot:["client","apim"], wire:"jwt"},
+
+    {from:"apim",to:"entra",    y:158, kind:"call", color:"#3390de",
+     title:"2 · Validate the identity",
+     body:"APIM runs <code>validate-azure-ad-token</code> — it checks the token's <b>audience</b> <code>api://246e2a64…</code>, issuer, signature, and required <b>group</b> claim. Bad token → <b>401</b>.",
+     label:"validate-azure-ad-token (audience · issuer · groups)", hot:["apim","entra"], wire:"hold"},
+
+    {from:"entra",to:"apim",    y:204, kind:"ret",  color:"#3390de",
+     title:"3 · Entra confirms who they are",
+     body:"Entra returns the validated identity and the user's <b>team group</b> (e.g. Engineering). APIM now knows the user and their team.",
+     label:"valid ✓  — user ∈ Engineering group", hot:["entra","apim"], wire:"hold"},
+
+    {from:"apim",to:"apim",     y:250, kind:"self", color:"#e8a23e",
+     title:"4 · Authorize the team + enforce quota",
+     body:"The <b>team key</b> must match a <b>group</b> in the token (else <b>403 wrong_team</b>). Then APIM enforces that team's <b>token / rate / daily quota</b> (else <b>429</b>).",
+     label:"authorize team key ↔ group  ·  enforce quota", hot:["apim"], wire:"hold"},
+
+    {from:"apim",to:"cs",       y:296, kind:"call", color:"#e05555",
+     title:"5 · Screen the prompt",
+     body:"Before any model sees the text, APIM sends it to <b>Content Safety</b> — authenticated with <b>APIM's managed identity</b> (Content Safety is keyless too).",
+     label:"screen prompt  (APIM managed identity)", hot:["apim","cs"], wire:"hold"},
+
+    {from:"cs",to:"apim",       y:342, kind:"ret",  color:"#e05555",
+     title:"6 · Safety verdict",
+     body:"Safe → continue. Harmful or prompt‑injection content → <b>400 content_filtered</b>, before the model is ever called.",
+     label:"safe ✓   (else 400 content_filtered)", hot:["cs","apim"], wire:"hold"},
+
+    {from:"apim",to:"apim",     y:388, kind:"self", color:"#a366d6",
+     title:"7 · ★ The pivot — identity swap",
+     body:"APIM <b>drops the user's JWT and any client key</b>, then attaches its <b>own system‑assigned managed identity</b> (<code>417ad067…</code>, role <code>Cognitive Services User</code>).",
+     label:"drop user JWT + client key  ·  attach APIM managed identity", hot:["apim"], wire:"swap"},
+
+    {from:"apim",to:"foundry",  y:434, kind:"call", color:"#26c0c0",
+     title:"8 · Key-less call to the model",
+     body:"APIM calls Foundry with <b>only its own identity</b> — a Bearer MI token. Foundry has <code>local_auth_enabled=false</code>, so there is <b>no API key</b> to leak, and it trusts <b>only the gateway</b>.",
+     label:"POST /chat  +  Bearer <APIM MI token>", hot:["apim","foundry"], wire:"mi"},
+
+    {from:"foundry",to:"apim",  y:480, kind:"ret",  color:"#26c0c0",
+     title:"9 · Model responds",
+     body:"Foundry returns the completion to the gateway. The user's identity never reached the model — only APIM's did.",
+     label:"completion", hot:["foundry","apim"], wire:"mi"},
+
+    {from:"apim",to:"client",   y:526, kind:"ret",  color:"#2e9d47",
+     title:"10 · Audited response back to the app",
+     body:"APIM records the call by <b>team + cost center + tokens</b> (App Insights / Log Analytics) and returns the answer to the app.",
+     label:"response  (audited: team + cost center)", hot:["apim","client"], wire:"res"},
+  ];
+
+  // ---- build markers (one per color) ----
+  const defs=el("defs",{});
+  [...new Set(M.map(m=>m.color))].forEach(c=>{
+    const id="ah-"+c.replace("#","");
+    const mk=el("marker",{id:id,markerWidth:9,markerHeight:9,refX:7,refY:4,orient:"auto"});
+    mk.appendChild(el("path",{d:"M0,0 L8,4 L0,8 z",fill:c}));
+    defs.appendChild(mk);
+  });
+  svg.appendChild(defs);
+
+  // ---- lifelines + header boxes ----
+  const laneEls={};
+  lanes.forEach(l=>{
+    svg.appendChild(el("line",{class:"lifeline",x1:l.x,y1:TOP,x2:l.x,y2:BOT}));
+    const bw=150,bh=42,bx=l.x-bw/2,by=16;
+    const box=el("rect",{class:"llbox",x:bx,y:by,width:bw,height:bh,rx:9,
+                         fill:"#101d2b",stroke:l.color,style:"color:"+l.color});
+    svg.appendChild(box); laneEls[l.id]=box;
+    const t=el("text",{class:"lltext",x:l.x,y:by+18,fill:l.color}); t.textContent=l.name; svg.appendChild(t);
+    const s=el("text",{class:"llsub",x:l.x,y:by+33}); s.textContent=l.sub; svg.appendChild(s);
+  });
+
+  // ---- messages ----
+  const msgEls=[];
+  M.forEach((m,i)=>{
+    const x1=laneX[m.from], x2=laneX[m.to], y=m.y, id="ah-"+m.color.replace("#","");
+    let line, lx, ly=y-8;
+    if(m.kind==="self"){
+      const r=x1+8;
+      line=el("path",{class:"msgline",d:`M${r},${y-12} h40 v20 h-40`,fill:"none",
+                      stroke:m.color,"marker-end":`url(#${id})`});
+      lx=r+58; ly=y-2;
+    }else{
+      line=el("line",{class:"msgline"+(m.kind==="ret"?" ret":""),x1:x1,y1:y,x2:x2,y2:y,
+                      stroke:m.color,"marker-end":`url(#${id})`});
+      lx=(x1+x2)/2;
+    }
+    line.style.opacity=.12; svg.appendChild(line);
+    const lab=el("text",{class:"msglabel",x:lx,y:ly,"text-anchor":m.kind==="self"?"start":"middle"});
+    lab.textContent=m.label; lab.style.opacity=.15; svg.appendChild(lab);
+    msgEls.push({line,lab});
+  });
+
+  // ---- moving packet ----
+  const packet=el("circle",{class:"packet",r:8,cx:-20,cy:-20,fill:"#2e9d47"});
+  svg.appendChild(packet);
+
+  // ---- player ----
+  const N=M.length, MOVE=1100, DWELL=1600;
+  const stepno=document.getElementById("stepno"),
+        captitle=document.getElementById("captitle"),
+        capbody=document.getElementById("capbody"),
+        wireBadge=document.getElementById("wirebadge"),
+        wireLab=document.getElementById("wirelab"),
+        wireSub=document.getElementById("wiresub"),
+        prog=document.getElementById("progress");
+  for(let i=0;i<N;i++){ prog.appendChild(el2("i")); }
+  function el2(t){ return document.createElement(t); }
+
+  const WIRE={
+    jwt:{cls:"w-jwt", lab:"User JWT  +  Team key",           sub:"app → gateway only"},
+    hold:{cls:"w-hold",lab:"User JWT held at the gateway",    sub:"MI token used for Content Safety"},
+    swap:{cls:"w-swap",lab:"SWAP — user JWT dropped, APIM MI attached", sub:"the pivot: identity changes here"},
+    mi:{cls:"w-mi",  lab:"APIM Managed Identity",             sub:"gateway → model · keyless, no API key"},
+    res:{cls:"w-res",lab:"Response",                          sub:"audited by team + cost center"},
+  };
+
+  let idx=0, phase="move", phaseStart=performance.now(), paused=false, pauseStart=0;
+
+  function setProgress(i){
+    [...prog.children].forEach((c,k)=>{ c.className = k<i?"done":(k===i?"cur":""); });
+  }
+  function pointFor(m,t){
+    if(m.kind==="self"){ const r=laneX[m.from]+8; return {x:r+40, y:(m.y-12)+t*20}; }
+    return { x:laneX[m.from]+(laneX[m.to]-laneX[m.from])*t, y:m.y };
+  }
+  function enter(i){
+    idx=i; const m=M[i];
+    msgEls.forEach((e,k)=>{ const o=k<i?.32:(k===i?1:.1);
+      e.line.style.opacity=o; e.lab.style.opacity=(k<=i?(k===i?1:.4):.15); });
+    lanes.forEach(l=>{ laneEls[l.id].classList.toggle("hot", m.hot.includes(l.id)); });
+    stepno.textContent="step "+(i+1)+" / "+N;
+    captitle.innerHTML=m.title; capbody.innerHTML=m.body;
+    const w=WIRE[m.wire];
+    wireBadge.className="wirebadge "+w.cls; wireLab.textContent=w.lab; wireSub.textContent=w.sub;
+    packet.setAttribute("fill",m.color);
+    const p0=pointFor(m,0); packet.setAttribute("cx",p0.x); packet.setAttribute("cy",p0.y);
+    setProgress(i);
+    phase="move"; phaseStart=performance.now();
+  }
+
+  function tick(now){
+    if(!paused){
+      const dt=now-phaseStart, m=M[idx];
+      if(phase==="move"){
+        const t=Math.min(dt/MOVE,1), p=pointFor(m,t);
+        packet.setAttribute("cx",p.x); packet.setAttribute("cy",p.y);
+        if(t>=1){ phase="dwell"; phaseStart=now; }
+      }else if(dt>=DWELL){
+        enter((idx+1)%N);
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  enter(0); requestAnimationFrame(tick);
+
+  // ---- controls ----
+  const playBtn=document.getElementById("play");
+  function setPaused(p){
+    paused=p;
+    if(p){ pauseStart=performance.now(); playBtn.textContent="▶ Play"; }
+    else { phaseStart+=performance.now()-pauseStart; playBtn.textContent="⏸ Pause"; }
+  }
+  playBtn.onclick=()=>setPaused(!paused);
+  document.getElementById("next").onclick=()=>{ enter((idx+1)%N); if(paused){ playBtn.textContent="▶ Play"; } };
+  document.getElementById("prev").onclick=()=>{ enter((idx-1+N)%N); if(paused){ playBtn.textContent="▶ Play"; } };
+  document.getElementById("restart").onclick=()=>{ enter(0); if(paused) setPaused(false); };
+  // click the diagram to pause/resume
+  document.querySelector(".diagram").addEventListener("click",()=>setPaused(!paused));
+})();
+</script>
+</body>
+</html>
