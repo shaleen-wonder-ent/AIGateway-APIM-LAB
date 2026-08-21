@@ -5,7 +5,7 @@ infra/tfplan*      binary linguist-generated
 *.tfstate.*        linguist-generated
 *.log              linguist-generated
 
-# Ensure the real content is classified correctly
-*.tf    linguist-language=HCL
+# Exclude Terraform from GitHub language statistics
+*.tf    linguist-detectable=false
 *.xml   linguist-language=XML
 *.http  linguist-language=HTTP
